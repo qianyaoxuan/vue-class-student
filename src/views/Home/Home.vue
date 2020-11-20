@@ -1,9 +1,30 @@
 <template>
   <div class="home">
-    <van-search v-model="searchValue" placeholder="请输入搜索关键词" show-action @search="onSearch">
+    <van-search v-model="searchValue" placeholder="请输入学员姓名" show-action @search="onSearch">
       <div slot="action" @click="onSearch">搜索</div>
     </van-search>
-    <div class="home-swipe">
+    <van-button type="primary" size="small" @click='addStudent'>录入学员</van-button>
+
+    <van-dialog v-model="modalShow"
+      show-cancel-button
+      @confirm='addSubmit'
+      title="学员信息">
+       <van-field v-model="text" label="姓名" />
+<!-- 输入手机号，调起手机号键盘 -->
+<van-field v-model="tel" type="tel" label="手机号" />
+<van-field v-model="digit" type="digit" label="课时" />
+<van-field v-model="givedigit" type="digit" label="赠送课时" />
+<van-cell center title="是否老带新">
+  <template #right-icon>
+    <van-switch v-model="checked" size="24" />
+  </template>
+</van-cell>
+    <van-search v-if='checked' v-model="searchValue" placeholder="请输入老学员姓名" show-action @search="onSearch">
+      <div slot="action" @click="onSearch">搜索</div>
+    </van-search>
+    </van-dialog>
+
+    <!-- <div class="home-swipe">
       <div class="home-swipe-head">
         <span class="recommend">今日推荐</span>
         <span class="tips">每天都有新发现</span>
@@ -18,12 +39,12 @@
         <van-swipe-item class="swipe-item"><img src="@/images/swipe/swipe-3.jpg"></van-swipe-item>
         <van-swipe-item class="swipe-item"><img src="@/images/swipe/swipe-4.jpg"></van-swipe-item>
       </van-swipe>
-    </div>
-    <good-item title="热销榜" describe="每日热销指南" moreRoute="/more/1">
+    </div> -->
+    <!-- <good-item title="热销榜" describe="每日热销指南" moreRoute="/more/1">
       <scrollX scrollDir='scrollX' class="scroll-hot" :data="hotGoods">
       </scrollX>
-    </good-item>
-    <good-item title="低价火拼" describe="一起拼最划算" moreRoute="/more/1">
+    </good-item> -->
+    <!-- <good-item title="低价火拼" describe="一起拼最划算" moreRoute="/more/1">
       <ul class="sale-ul">
         <li class="sale-item" v-for="item in saleGroupGoods.slice(0,3)" :key="item.Goodid" @click="showGood(item)">
           <img :src="item.GoodImg" alt="">
@@ -32,27 +53,27 @@
           </div>
         </li>
       </ul>
-    </good-item>
-    <good-item title="发现" describe="发现更多优质好货">
+    </good-item> -->
+    <!-- <good-item title="发现" describe="发现更多优质好货">
       <ul class="discover-ul">
         <background-img v-for="(item,index) in discoverGoods.slice(0,2)" :key="item.Goodid" :imgSrc="item.GoodImg" class="discover-li" :class="index===0?'discover-img':''" :topic="item.Goodname" :desc="item.Gooddescribe" @click.native="showGood(item)"></background-img>
       </ul>
       <ul class="discover-ul">
         <background-img v-for="item in discoverGoods.slice(0,3)" :key="item.Goodid" :imgSrc="item.GoodImg" class="discover-li" :topic="item.Goodname" :desc="item.Gooddescribe" @click.native="showGood(item)"></background-img>
       </ul>
-    </good-item>
-    <div class="recommend">
+    </good-item> -->
+    <!-- <div class="recommend">
       <div class="recommend-title">
         <div class="border"></div>
         <div class="title">朋友圈的好货推荐</div>
         <div class="border"></div>
-      </div>
-      <van-tabs>
+      </div> -->
+      <!-- <van-tabs>
         <van-tab v-for="(value,key) in goodItems" :key="key" :title="key">
           <tabItem :data="value"></tabItem>
         </van-tab>
-      </van-tabs>
-    </div>
+      </van-tabs> -->
+    <!-- </div> -->
   </div>
 </template>
 
@@ -70,6 +91,12 @@ export default {
       searchValue: '',
       indexPage: 1,
       hotGoods: [],
+      modalShow: false,
+      text: '',
+      tel: '',
+      digit: '',
+      givedigit: '',
+      checked: false,
       saleGroupGoods: [],
       discoverGoods: []
     };
@@ -101,6 +128,7 @@ export default {
     goodItem,
     scrollX,
     backgroundImg,
+
     tabItem
   },
   computed: {
@@ -117,6 +145,10 @@ export default {
   methods: {
     onSearch() {
       console.log('onSearch');
+    },
+    addSubmit() {},
+    addStudent() {
+      this.modalShow = true;
     },
     changeSwipe(index) {
       this.indexPage = index;

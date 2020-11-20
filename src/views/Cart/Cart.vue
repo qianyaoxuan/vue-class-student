@@ -1,17 +1,31 @@
 <template>
   <div class="cart">
-    <van-nav-bar title="购物车"
-      :right-text="rightText"
-      @click-right="editCart"
+    <van-nav-bar title="班级"
+      right-text="添加"
+      @click-right="toAddClass"
       :z-index="10"
       fixed />
     <div class="nogood"
-      v-if="!this.cartList.length">
-      <div>购物车空空的，快去购物吧~</div>
+      v-if="!this.classList.length">
+      <div>还没有班级信息，快去添加吧~</div>
       <van-button type="primary"
         class="btn"
-        @click="goHome">去首页</van-button>
+        @click="toAddClass">去添加</van-button>
     </div>
+<div  class='card-classs'>
+<!-- <van-contact-card
+  v-for='value in classList'
+  type="edit"
+ 
+  :key='value'
+  :name="value.classid"
+  :tel="value.classname"
+  @click="onEdit"
+/> -->
+<van-cell   v-for='value in classList' :key="value.classname" :title="value.classname"  is-link  @click='toUpdateClass(value)'/>
+
+</div>
+
     <van-checkbox-group class="card-goods"
       v-model="checkedGoods">
       <van-checkbox class="card-goods__item"
@@ -45,24 +59,15 @@
     </van-checkbox-group>
     <van-dialog v-model="modalShow"
       show-cancel-button
-      :before-close="beforeClose"
-      title="数量修改">
-      <div class="modal-box">
-        <span class="add"
-          @click.stop="reduceEditCount">
-          <van-button class="btn"
-            size="mini">-</van-button>
-        </span>
-        <span class="input">
-          <input type="number"
-            v-model.number="editNum" />
-        </span>
-        <span class="reduce"
-          @click.stop="addEditCount">
-          <van-button class="btn"
-            size="mini">+</van-button>
-        </span>
-      </div>
+      @confirm='addSubmit'
+      title="添加班级">
+        <van-field v-model="classname" placeholder="请输入班级名称" />
+    </van-dialog>
+    <van-dialog v-model="updateShow"
+      show-cancel-button
+      @confirm='updateSubmit'
+      title="修改班级名称">
+        <van-field v-model="update.updatename" placeholder="请输入班级名称" />
     </van-dialog>
     <van-submit-bar class="cart-bar"
       v-if="this.cartList.length"
@@ -81,19 +86,30 @@
 <script>
 import { Toast, Dialog } from 'vant';
 import { mapGetters, mapMutations } from 'vuex';
-import { getCart, updateCartCount, delFromCart } from '@/api/api';
+import { addClass, getClass, updateClass, updateCartCount, delFromCart } from '@/api/api';
 export default {
   name: 'Cart',
   data() {
     return {
       cartList: [],
+      classList: [],
       checkedGoods: [],
       checkedAll: false,
       checkedAllMsg: '全选',
       isEdit: false,
       modalShow: false,
+      updateShow: false,
       editGood: {},
+      classname: '',
+      update: {
+        updateid: '',
+        updatename: ''
+      },
       editNum: 0,
+      currentContact: {
+        name: '张三',
+        tel: '13000000000'
+      },
       timer: 0
     };
   },
@@ -102,17 +118,34 @@ export default {
   },
   methods: {
     init() {
-      getCart()
+      // getCart()
+      //   .then(result => {
+      //     this.cartList = result.data;
+      //     this.checkedGoods = [];
+      //   })
+      //   .catch(error => {
+      //     console.log(error);
+      //   });
+      getClass()
         .then(result => {
-          this.cartList = result.data;
-          this.checkedGoods = [];
+          console.log(result);
+          this.classList = result.data;
+          // this.checkedGoods = [];
         })
         .catch(error => {
           console.log(error);
         });
     },
-    editCart() {
-      this.isEdit = !this.isEdit;
+    onEdit() {},
+    toAddClass() {
+      this.classname = '';
+      this.modalShow = true;
+      // this.isEdit = !this.isEdit;
+    },
+    toUpdateClass(val) {
+      this.update.updatename = val.classname;
+      this.update.updateid = val.classid;
+      this.updateShow = true;
     },
     reduceCount(item, count) {
       if (!count && count !== 0) {
@@ -194,6 +227,50 @@ export default {
     },
     goHome() {
       this.$router.push('/');
+    },
+
+    addSubmit() {
+      var obj = {
+        classname: this.classname
+      };
+      addClass(obj)
+        .then(result => {
+          console.log(result);
+          this.$toast.success('添加成功~');
+          getClass()
+            .then(result => {
+              console.log(result);
+              this.classList = result.data;
+              // this.checkedGoods = [];
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    updateSubmit() {
+      console.log(this.update);
+
+      updateClass(this.update)
+        .then(result => {
+          console.log(result);
+          this.$toast.success('更新成功~');
+          getClass()
+            .then(result => {
+              console.log(result);
+              this.classList = result.data;
+              // this.checkedGoods = [];
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     beforeClose(action, done) {
       if (action === 'confirm') {
@@ -335,6 +412,10 @@ export default {
 <style lang="stylus">
 .cart
   margin-bottom 120px
+
+.card-classs
+  padding-top 46px
+  background-color #fff
 
 .card-goods
   padding-top 46px

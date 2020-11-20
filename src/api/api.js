@@ -14,3 +14,7 @@ export const getAddress = () => post('getAddress');
 export const getOrder = () => post('getOrder');
 export const createOrder = params => post('createOrder', params);
 export const getGoodById = params => post('getGoodById', params);
+//获取班级接口
+export const getClass = () => post('getClass');
+export const addClass = params => post('addClass', params);
+export const updateClass = params => post('updateClass', params);

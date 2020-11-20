@@ -3,7 +3,7 @@
     <div class="reg">
       <h1>用户注册</h1>
       <van-cell-group class="reg-from">
-        <van-field v-model="userName" clearable border label="邮箱" placeholder="请输入邮箱" :error-message="userNameErr" />
+        <van-field v-model="userName" clearable border label="手机号" placeholder="请输入邮箱" :error-message="userNameErr" />
         <van-field v-model="password" clearable border type="password" label="密码" placeholder="请输入密码" :error-message="passwordErr" />
         <van-field v-model="passwordRep" clearable border type="password" label="重复密码" placeholder="请再次输入密码" :error-message="passwordRepErr" />
         <van-cell>
@@ -20,7 +20,7 @@
 
 <script>
 import MD5 from 'crypto-js/md5';
-import { emailCheck, pwdCheck } from '@/util/util';
+import { emailCheck, pwdCheck, phoneNumCheck } from '@/util/util';
 import { reg } from '@/api/api';
 import { Toast } from 'vant';
 export default {
@@ -41,8 +41,8 @@ export default {
       this.passwordErr = '';
       this.passwordRepErr = '';
       this.loading = true;
-      if (!emailCheck(this.userName)) {
-        this.userNameErr = '邮箱格式不正确';
+      if (!phoneNumCheck(this.userName)) {
+        this.userNameErr = '手机号码格式不正确';
         this.loading = false;
         return;
       }
@@ -56,6 +56,7 @@ export default {
         this.loading = false;
         return;
       }
+      console.log(this.userName, this.password);
       reg({ userName: this.userName, password: MD5(this.password).toString() })
         .then(res => {
           if (res.status === 200) {

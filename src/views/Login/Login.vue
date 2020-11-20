@@ -1,14 +1,14 @@
 <template>
   <transition name="slide">
     <div class="login">
-      <h1>登陆商城</h1>
+      <h1>登录</h1>
       <van-cell-group class="login-from">
-        <van-field v-model="userName" clearable border label="邮箱" placeholder="请输入邮箱" :error-message="userNameErr" />
+        <van-field v-model="userName" clearable border label="手机号" placeholder="请输入手机号" :error-message="userNameErr" />
         <van-field v-model="password" clearable border type="password" label="密码" placeholder="请输入密码" :error-message="passwordErr" />
         <van-cell>
           <van-row>
             <van-col span="12" class="btn">
-              <van-button type="primary" size="small" @click="login" :loading="loading">登陆</van-button>
+              <van-button type="primary" size="small" @click="login" :loading="loading">登录</van-button>
             </van-col>
             <van-col span="12" class="btn">
               <van-button type="default" size="small" @click="reg">注册</van-button>
@@ -22,15 +22,15 @@
 
 <script>
 import MD5 from 'crypto-js/md5';
-import { emailCheck, pwdCheck } from '@/util/util';
+import { emailCheck, pwdCheck, phoneNumCheck } from '@/util/util';
 import { login } from '@/api/api';
 import { Toast } from 'vant';
 
 export default {
   data() {
     return {
-      userName: 'test@qq.com',
-      password: 'pwx980101',
+      userName: '138xxxxxxxx',
+      password: '',
       userNameErr: '',
       passwordErr: '',
       loading: false,
@@ -50,8 +50,8 @@ export default {
       this.userNameErr = '';
       this.passwordErr = '';
       this.loading = true;
-      if (!emailCheck(this.userName)) {
-        this.userNameErr = '邮箱格式不正确';
+      if (!phoneNumCheck(this.userName)) {
+        this.userNameErr = '手机号格式不正确';
         this.loading = false;
         return;
       }

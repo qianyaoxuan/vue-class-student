@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 var connection = require('../db/connect');
 
-//登陆
+//登录
 router.post('/login', function(req, res, next) {
   var userName = req.body.userName;
   var password = req.body.password;
@@ -413,4 +413,73 @@ router.post('/createOrder', function(req, res, next) {
     });
   });
 });
+//获取所有班级信息
+router.post('/getClass', function(req, res, next) {
+  var username = req.cookies.username;
+  var sql = `SELECT classid,classname FROM class `;
+  var sqlParams = username;
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+
+//添加班级信息
+router.post('/addClass', function(req, res, next) {
+  var classname = req.body.classname;
+  sql = 'INSERT INTO class(classname) VALUES(?)';
+  var sqlParams = [classname];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+
+//修改班级信息
+router.post('/updateClass', function(req, res, next) {
+  var classname = req.body.updatename;
+  var classid = req.body.updateid;
+
+  sql = 'INSERT INTO class(classname) VALUES(?)';
+  var sql = `UPDATE class SET classname=? WHERE classid=?`;
+  var sqlParams = [classname, classid];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+
 module.exports = router;

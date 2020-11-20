@@ -213,31 +213,7 @@ INSERT INTO `usersuborder` VALUES (8, 11, 4, 3);
 INSERT INTO `usersuborder` VALUES (7, 10, 4, 1);
 INSERT INTO `usersuborder` VALUES (6, 9, 8, 1);
 INSERT INTO `usersuborder` VALUES (5, 9, 4, 3);
--- ----------------------------
--- Table structure for good
--- ----------------------------
-DROP TABLE IF EXISTS `class`;
-CREATE TABLE `class`  (
-  `classid` int(11) NOT NULL AUTO_INCREMENT,
-  `classname` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`classid`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
-DROP TABLE IF EXISTS `student`;
-CREATE TABLE `student`  (
-  `studentid` int(11) NOT NULL AUTO_INCREMENT,
-  `studentname` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `phonenum` char(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `bugclassnum` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `giveclass` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `foldleadnew` int(11) NOT NULL,
-  `belong_class_id` int(11) NOT NULL,
-  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`studentid`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
 SET FOREIGN_KEY_CHECKS = 1;
