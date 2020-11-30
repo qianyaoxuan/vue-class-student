@@ -3,77 +3,9 @@
     <van-search v-model="searchValue" placeholder="请输入学员姓名" show-action @search="onSearch">
       <div slot="action" @click="onSearch">搜索</div>
     </van-search>
-    <van-button type="primary" size="small" @click='addStudent'>录入学员</van-button>
+ <van-button type="primary" size="small" to="/Student">录入学员</van-button>
+<van-cell   v-for='value in studentList' :key="value.name" :title="value.name"  is-link  @click='toStudentDetail(value)'/>
 
-    <van-dialog v-model="modalShow"
-      show-cancel-button
-      @confirm='addSubmit'
-      title="学员信息">
-       <van-field v-model="text" label="姓名" />
-<!-- 输入手机号，调起手机号键盘 -->
-<van-field v-model="tel" type="tel" label="手机号" />
-<van-field v-model="digit" type="digit" label="课时" />
-<van-field v-model="givedigit" type="digit" label="赠送课时" />
-<van-cell center title="是否老带新">
-  <template #right-icon>
-    <van-switch v-model="checked" size="24" />
-  </template>
-</van-cell>
-    <van-search v-if='checked' v-model="searchValue" placeholder="请输入老学员姓名" show-action @search="onSearch">
-      <div slot="action" @click="onSearch">搜索</div>
-    </van-search>
-    </van-dialog>
-
-    <!-- <div class="home-swipe">
-      <div class="home-swipe-head">
-        <span class="recommend">今日推荐</span>
-        <span class="tips">每天都有新发现</span>
-        <span class="swipe-num">
-          <span class="indexPage">{{indexPage+1}}</span>
-          <span class="pageNum">/4</span>
-        </span>
-      </div>
-      <van-swipe :autoplay="3000" class="swipe" @change="changeSwipe">
-        <van-swipe-item class="swipe-item"><img src="@/images/swipe/swipe-1.jpg"></van-swipe-item>
-        <van-swipe-item class="swipe-item"><img src="@/images/swipe/swipe-2.jpg"></van-swipe-item>
-        <van-swipe-item class="swipe-item"><img src="@/images/swipe/swipe-3.jpg"></van-swipe-item>
-        <van-swipe-item class="swipe-item"><img src="@/images/swipe/swipe-4.jpg"></van-swipe-item>
-      </van-swipe>
-    </div> -->
-    <!-- <good-item title="热销榜" describe="每日热销指南" moreRoute="/more/1">
-      <scrollX scrollDir='scrollX' class="scroll-hot" :data="hotGoods">
-      </scrollX>
-    </good-item> -->
-    <!-- <good-item title="低价火拼" describe="一起拼最划算" moreRoute="/more/1">
-      <ul class="sale-ul">
-        <li class="sale-item" v-for="item in saleGroupGoods.slice(0,3)" :key="item.Goodid" @click="showGood(item)">
-          <img :src="item.GoodImg" alt="">
-          <div class="sale-title">拼团价
-            <span class="sale-price">￥{{item.GoodPriceaftersale}}</span>
-          </div>
-        </li>
-      </ul>
-    </good-item> -->
-    <!-- <good-item title="发现" describe="发现更多优质好货">
-      <ul class="discover-ul">
-        <background-img v-for="(item,index) in discoverGoods.slice(0,2)" :key="item.Goodid" :imgSrc="item.GoodImg" class="discover-li" :class="index===0?'discover-img':''" :topic="item.Goodname" :desc="item.Gooddescribe" @click.native="showGood(item)"></background-img>
-      </ul>
-      <ul class="discover-ul">
-        <background-img v-for="item in discoverGoods.slice(0,3)" :key="item.Goodid" :imgSrc="item.GoodImg" class="discover-li" :topic="item.Goodname" :desc="item.Gooddescribe" @click.native="showGood(item)"></background-img>
-      </ul>
-    </good-item> -->
-    <!-- <div class="recommend">
-      <div class="recommend-title">
-        <div class="border"></div>
-        <div class="title">朋友圈的好货推荐</div>
-        <div class="border"></div>
-      </div> -->
-      <!-- <van-tabs>
-        <van-tab v-for="(value,key) in goodItems" :key="key" :title="key">
-          <tabItem :data="value"></tabItem>
-        </van-tab>
-      </van-tabs> -->
-    <!-- </div> -->
   </div>
 </template>
 
@@ -82,7 +14,7 @@ import goodItem from '@/components/goodItem/goodItem';
 import scrollX from '@/components/scroll/scrollX';
 import backgroundImg from '@/components/backgroundImg/backgroundImg';
 import tabItem from '@/components/tabItem/tabItem';
-import { hotSale, saleGroup, discover } from '@/api/api';
+import { hotSale, saleGroup, getClassList, getStudentlist, discover } from '@/api/api';
 import { mapMutations } from 'vuex';
 export default {
   name: 'Home',
@@ -93,32 +25,45 @@ export default {
       hotGoods: [],
       modalShow: false,
       text: '',
+      class1: '',
       tel: '',
       digit: '',
       givedigit: '',
       checked: false,
       saleGroupGoods: [],
-      discoverGoods: []
+      discoverGoods: [],
+      classList: [],
+      studentList: []
     };
   },
   mounted() {
-    hotSale()
+    getClassList()
       .then(result => {
-        this.hotGoods = result.data;
+        console.log(result);
+        var reslist = result.data;
+        reslist.forEach((item, i) => {
+          let obj = {};
+          obj.text = item.classname;
+          obj.value = item.classid;
+          this.classList.push(obj);
+        });
+        // this.checkedGoods = [];
       })
       .catch(error => {
         console.log(error);
       });
-    saleGroup()
+
+    getStudentlist()
       .then(result => {
-        this.saleGroupGoods = result.data;
-      })
-      .catch(error => {
-        console.log(error);
-      });
-    discover()
-      .then(result => {
-        this.discoverGoods = result.data;
+        // console.log(result);
+        var stulist = result.data;
+        stulist.forEach((item, i) => {
+          let obj = {};
+          obj.name = item.studentname;
+          obj.id = item.studentid;
+          this.studentList.push(obj);
+        });
+        // this.checkedGoods = [];
       })
       .catch(error => {
         console.log(error);
@@ -149,6 +94,14 @@ export default {
     addSubmit() {},
     addStudent() {
       this.modalShow = true;
+    },
+    toStudentDetail(val) {
+      this.$router.push({
+        path: '/StudentDetail',
+        query: {
+          studentid: val.id
+        }
+      });
     },
     changeSwipe(index) {
       this.indexPage = index;

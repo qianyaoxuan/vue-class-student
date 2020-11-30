@@ -1,6 +1,7 @@
 import { get, post } from '@/util/http';
 export const test = () => get('/');
 export const login = params => post('login', params);
+export const quit = () => get('quit');
 export const reg = params => post('reg', params);
 export const hotSale = () => post('hotsale');
 export const saleGroup = () => post('salegroup');
@@ -15,6 +16,14 @@ export const getOrder = () => post('getOrder');
 export const createOrder = params => post('createOrder', params);
 export const getGoodById = params => post('getGoodById', params);
 //获取班级接口
-export const getClass = () => post('getClass');
+export const getClassList = () => post('getClassList');
+export const getClass = params => post('getClass', params);
 export const addClass = params => post('addClass', params);
 export const updateClass = params => post('updateClass', params);
+export const addStudent = params => post('addStudent', params);
+export const getStudentlist = () => post('getStudentlist');
+export const updateStudentgiveclass = params => post('updateStudentgiveclass', params);
+export const updateStudentclass = params => post('updateStudentclass', params);
+export const searchStudent = params => post('searchStudent', params);
+export const getStudent = params => post('getStudent', params);
+export const delCourse = params => post('delCourse', params);

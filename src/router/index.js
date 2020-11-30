@@ -11,6 +11,8 @@ const Order = () => import(/* webpackChunkName: "Order" */ '@/views/Order/Order'
 const AddressList = () => import(/* webpackChunkName: "AddressList" */ '@/views/AddressList/AddressList');
 const EditAddress = () => import(/* webpackChunkName: "EditAddress" */ '@/views/EditAddress/EditAddress');
 const OrderList = () => import(/* webpackChunkName: "OrderList" */ '@/views/OrderList/OrderList');
+const Student = () => import(/* webpackChunkName: "Student" */ '@/views/Student/Student');
+const StudentDetail = () => import(/* webpackChunkName: "StudentDetail" */ '@/views/Student/Detail');
 
 Vue.use(Router);
 
@@ -25,6 +27,16 @@ export default new Router({
       path: '/Cart',
       name: 'Cart',
       component: Cart
+    },
+    {
+      path: '/Student',
+      name: 'Student',
+      component: Student
+    },
+    {
+      path: '/StudentDetail',
+      name: 'StudentDetail',
+      component: StudentDetail
     },
     {
       path: '/User',

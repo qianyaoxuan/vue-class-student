@@ -3,7 +3,7 @@
     <van-tabbar v-model="active" class="tab" style="z-index:999">
       <van-tabbar-item icon="home" to="/">首页</van-tabbar-item>
       <van-tabbar-item icon="cart" to="/Cart">班级</van-tabbar-item>
-      <van-tabbar-item icon="contact" to="/User">用户</van-tabbar-item>
+      <!-- <van-tabbar-item icon="contact" to="/User">用户</van-tabbar-item> -->
     </van-tabbar>
   </div>
 </template>

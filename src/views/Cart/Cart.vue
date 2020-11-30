@@ -86,7 +86,7 @@
 <script>
 import { Toast, Dialog } from 'vant';
 import { mapGetters, mapMutations } from 'vuex';
-import { addClass, getClass, updateClass, updateCartCount, delFromCart } from '@/api/api';
+import { addClass, getClassList, updateClass, updateCartCount, delFromCart } from '@/api/api';
 export default {
   name: 'Cart',
   data() {
@@ -126,7 +126,7 @@ export default {
       //   .catch(error => {
       //     console.log(error);
       //   });
-      getClass()
+      getClassList()
         .then(result => {
           console.log(result);
           this.classList = result.data;
@@ -237,7 +237,7 @@ export default {
         .then(result => {
           console.log(result);
           this.$toast.success('添加成功~');
-          getClass()
+          getClassList()
             .then(result => {
               console.log(result);
               this.classList = result.data;
@@ -258,9 +258,9 @@ export default {
         .then(result => {
           console.log(result);
           this.$toast.success('更新成功~');
-          getClass()
+          getClassList()
             .then(result => {
-              console.log(result);
+              // console.log(result);
               this.classList = result.data;
               // this.checkedGoods = [];
             })
