@@ -87,6 +87,10 @@ router.post('/reg', function(req, res, next) {
     });
   });
 });
+// 退出
+router.post('/quit', function(req, res, next) {
+  res.clearCookie();
+});
 // 热销商品
 router.post('/hotsale', function(req, res, next) {
   var sql = `SELECT * FROM good WHERE find_in_set('1',GoodItem)`;
@@ -414,7 +418,7 @@ router.post('/createOrder', function(req, res, next) {
   });
 });
 //获取所有班级信息
-router.post('/getClass', function(req, res, next) {
+router.post('/getClassList', function(req, res, next) {
   var username = req.cookies.username;
   var sql = `SELECT classid,classname FROM class `;
   var sqlParams = username;
@@ -434,7 +438,28 @@ router.post('/getClass', function(req, res, next) {
     });
   });
 });
-
+//获取班级信息
+router.post('/getClass', function(req, res, next) {
+  var id = req.body.id;
+  console.log(id);
+  var sql = `SELECT * FROM class WHERE classid=?`;
+  var sqlParams = [id];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
 //添加班级信息
 router.post('/addClass', function(req, res, next) {
   var classname = req.body.classname;
@@ -481,5 +506,175 @@ router.post('/updateClass', function(req, res, next) {
     });
   });
 });
+//获取学员信息
+router.post('/getStudent', function(req, res, next) {
+  var id = req.body.id;
+  var sql = `SELECT * FROM student WHERE studentid=?`;
+  var sqlParams = [id];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
 
+//添加学员信息
+router.post('/addStudent', function(req, res, next) {
+  var name = req.body.name;
+  var phonenum = req.body.phonenum;
+  var classnum = req.body.classnum;
+  var giveclass = req.body.giveclass;
+  var foldleadnew = req.body.foldleadnew;
+  var belong_class_id = req.body.belong_class_id;
+  console.log(req.body);
+  sql =
+    'INSERT INTO student(studentname,phonenum,bugclassnum,giveclass,foldleadnew,belong_class_id) VALUES(?,?,?,?,?,?)';
+  var sqlParams = [name, phonenum, classnum, giveclass, foldleadnew, belong_class_id];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+//获取所有学员列表
+router.post('/getStudentlist', function(req, res, next) {
+  var username = req.cookies.username;
+  var sql = `SELECT * FROM student `;
+  var sqlParams = username;
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+
+//获取学员信息
+router.post('/searchStudent', function(req, res, next) {
+  var name = req.body.name;
+  var sql = `SELECT student.studentname,student.bugclassnum,student.giveclass,class.classname,class.classid FROM student,class WHERE class.classid=student.belong_class_id and  studentname=?`;
+  var sqlParams = [name];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+
+// 更新学员赠课信息
+router.post('/updateStudentgiveclass', function(req, res, next) {
+  var name = req.body.name;
+  var giveclass = req.body.giveclass;
+  var sql = `UPDATE student SET giveclass=? WHERE studentname=?`;
+  var sqlParams = [giveclass, name];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: ''
+    });
+  });
+});
+// 更新学员购买课时信息
+router.post('/updateStudentclass', function(req, res, next) {
+  var name = req.body.name;
+  var bugclassnum = req.body.bugclassnum;
+  var sql = `UPDATE student SET bugclassnum=? WHERE studentname=?`;
+  var sqlParams = [bugclassnum, name];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: ''
+    });
+  });
+});
+
+//销课
+router.post('/delCourse', function(req, res, next) {
+  // console.log(req.body);
+  console.log(req.cookies.username);
+
+  var student = req.body.student;
+  var teacher = req.cookies.username;
+  var coursetype = req.body.coursetype;
+  var coursenum = req.body.coursenum;
+  var coursedate = req.body.coursedate;
+  var coursebefore = req.body.coursebefore;
+  var courseafter = req.body.courseafter;
+
+  sql =
+    'INSERT INTO course(student,teacher,coursetype,coursenum,coursedate,coursebefore,courseafter) VALUES(?,?,?,?,?,?,?)';
+  var sqlParams = [student, teacher, coursetype, coursenum, coursedate, coursebefore, courseafter];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
 module.exports = router;

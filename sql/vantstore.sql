@@ -240,4 +240,20 @@ CREATE TABLE `student`  (
 ) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
+DROP TABLE IF EXISTS `course`;
+CREATE TABLE `course`  (
+  `courseid` int(11) NOT NULL AUTO_INCREMENT,
+  `student` char(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `teacher` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `coursetype` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `coursenum` int(11) NOT NULL,
+  `coursedate` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `coursebefore` int(11) NOT NULL, 
+  `courseafter` int(11) NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`courseid`) USING BTREE
+) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+
 SET FOREIGN_KEY_CHECKS = 1;
