@@ -645,6 +645,31 @@ router.post('/updateStudentclass', function(req, res, next) {
   });
 });
 
+// 更新学员个人信息
+router.post('/updateStudentDetail', function(req, res, next) {
+  var studentid = req.body.studentid;
+  var studentname = req.body.studentname;
+  var phonenum = req.body.phonenum;
+  var belong_class_id = req.body.belong_class_id;
+  var sql = `UPDATE student SET studentname=?,phonenum=?,belong_class_id=? WHERE studentid=?`;
+  var sqlParams = [studentname, phonenum, belong_class_id, studentid];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: ''
+    });
+  });
+});
+
 // 更新学员购买课时信息
 router.post('/updateStudentgiveclass', function(req, res, next) {
   var name = req.body.name;

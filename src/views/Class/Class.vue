@@ -1,6 +1,5 @@
 <template>
   <div class="home">
-    <!-- <van-button type="primary" size="small" to="/Student">录入学员</van-button> -->
 
     <van-nav-bar
   :title="classname"

@@ -7,14 +7,36 @@
   @click-left="onClickLeft"
 />
 <van-cell-group>
-  <van-cell title="姓名" :value="name" />
-  <van-cell title="所属班级" :value="belongclass" />
-  <van-cell title="手机号" :value="phonenum" />
+  <van-cell title="姓名" is-link  :value="name"  @click='updateStudentContent' />
+  <van-cell title="所属班级" is-link  :value="belongclass" @click='updateStudentContent' />
+  <van-cell title="手机号" is-link  :value="phonenum" @click='updateStudentContent' />
   <van-cell title="购买课时" is-link :value="classnum"  @click='delClass' />
   <van-cell title="已赠送课时"  is-link :value="giveclass" @click='delGiveClass'  />
-  <van-cell  v-if='foldleadnew===1' title="是否老带新" value="是"  />
-  <van-cell  v-else title="是否老带新" value="否"  />
+  <van-cell  v-if='foldleadnew===1' is-link  title="是否老带新" value="是"   @click='updateStudentContent'/>
+  <van-cell  v-else is-link  title="是否老带新" value="否"  @click='updateStudentContent' />
 </van-cell-group>
+<van-dialog v-model="dialogUpdateStudentContent" title="更新学员信息" show-cancel-button @confirm='updateStudentContentConfirm'>
+   <van-field v-model="content.studentname" label="姓名" />
+   <van-field v-model="content.phonenum" label="手机号" />
+<van-field
+  readonly
+  clickable
+  name="picker"
+  :value="content.belongclass"
+  label="班级"
+  placeholder="点击选择班级"
+  @click="showPicker = true"
+/>
+<van-popup v-model="showPicker" position="bottom">
+<van-picker
+        show-toolbar
+        :columns="classList"
+        value-key="text"
+        @confirm="onConfirm"
+        @cancel="showPicker = false"
+      />
+      </van-popup>
+</van-dialog>
 
 <van-dialog v-model="dialogClass" title="购买课时销课" show-cancel-button @confirm='delClassConfirm'>
   <!-- <img src="https://img.yzcdn.cn/vant/apple-3.jpg" /> -->
@@ -30,7 +52,7 @@
   :max-date="maxDate"
 />
 </van-dialog>
-<van-dialog v-model="dialogGiveClass" title="赠送课时销课" show-cancel-button @confirm='delGiveClassConfirm'>
+<van-dialog v-model="dialogGiveClass"  :before-close="onBeforeGiveClose" title="赠送课时销课" show-cancel-button @confirm='delGiveClassConfirm'>
       <van-cell title="剩余课时" :value="giveclass"   />
    <van-field v-model="usegive" label="本次销耗课时" />
     <van-datetime-picker
@@ -80,6 +102,7 @@ import {
   updateStudentgiveclass,
   updateStudentclass,
   getdelCourseHistory,
+  updateStudentDetail,
   delCourse,
   discover
 } from '@/api/api';
@@ -88,6 +111,9 @@ export default {
   name: 'Home',
   data() {
     return {
+      value: '',
+      classList: [],
+      showPicker: false,
       name: '',
       belongclass: '',
       classnum: '',
@@ -96,10 +122,15 @@ export default {
       foldleadnew: '',
       dialogGiveClass: false,
       dialogClass: false,
+      dialogUpdateStudentContent: false,
       use: '',
       date: '',
       usegive: '',
       dategive: '',
+      content: {
+        studentname: '',
+        phonenum: ''
+      },
       delcourseHistoryList: [],
       minDate: new Date(2018, 0, 1),
       maxDate: new Date(2025, 10, 1)
@@ -131,7 +162,7 @@ export default {
         this.phonenum = res.phonenum;
         this.giveclass = res.giveclass;
         this.foldleadnew = res.foldleadnew;
-        let cobj = {
+        var cobj = {
           id: res.belong_class_id
         };
         getClass(cobj)
@@ -143,6 +174,7 @@ export default {
             }
             // console.log(result);
             this.belongclass = result.data[0].classname;
+            this.belongclassid = result.data[0].classid;
           })
           .catch(error => {
             console.log(error);
@@ -161,7 +193,7 @@ export default {
 
           return;
         }
-        console.log(result);
+        // console.log(result);
         this.delcourseHistoryList = result.data;
         // this.belongclass = result.data[0].classname;
       })
@@ -188,6 +220,12 @@ export default {
     }
   },
   methods: {
+    onConfirm(value) {
+      this.content.belongclass = value.text;
+      this.content.belongclassid = value.value;
+
+      this.showPicker = false;
+    },
     addSubmit() {},
     delClass() {
       this.dialogClass = true;
@@ -206,10 +244,6 @@ export default {
 
             return;
           }
-          // console.log(this.date);
-          // console.log(this.date.getTime());
-          // var ddd = this.date.getTime();
-          // console.log(Math.round(ddd / 1000));
           var time = this.date.getTime() + '';
           let delobj = {
             studentid: this.$route.query.studentid,
@@ -243,6 +277,23 @@ export default {
                   this.classnum = res.bugclassnum;
                   this.giveclass = res.giveclass;
                   this.$toast.success('销课成功~');
+                  var sobj = {
+                    studentid: res.studentid
+                  };
+                  getdelCourseHistory(sobj)
+                    .then(result => {
+                      if (result.status !== 200) {
+                        this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+                        return;
+                      }
+                      // console.log(result);
+                      this.delcourseHistoryList = result.data;
+                      // this.belongclass = result.data[0].classname;
+                    })
+                    .catch(error => {
+                      console.log(error);
+                    });
                 })
                 .catch(error => {
                   console.log(error);
@@ -256,8 +307,23 @@ export default {
           console.log(error);
         });
     },
-
+    onBeforeGiveClose(action, done) {
+      if (action === 'confirm') {
+        if (parseInt(this.usegive) <= 0) {
+          this.$toast.fail('请正确输入课时');
+          done(false); //不关闭弹框
+        }
+        setTimeout(done, 1000);
+        console.log();
+      } else if (action === 'cancel') {
+        done(); //关闭
+      }
+    },
     delGiveClassConfirm() {
+      if (parseInt(this.usegive) <= 0) {
+        this.$toast.fail('请正确输入课时');
+        return;
+      }
       var freegiveclassnum = parseInt(this.giveclass) - parseInt(this.usegive);
       let obj = {
         name: this.name,
@@ -301,6 +367,80 @@ export default {
                   this.classnum = res.bugclassnum;
                   this.giveclass = res.giveclass;
                   this.$toast.success('销课成功~');
+                  var sobj = {
+                    studentid: res.studentid
+                  };
+                  getdelCourseHistory(sobj)
+                    .then(result => {
+                      if (result.status !== 200) {
+                        this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+                        return;
+                      }
+                      // console.log(result);
+                      this.delcourseHistoryList = result.data;
+                      // this.belongclass = result.data[0].classname;
+                    })
+                    .catch(error => {
+                      console.log(error);
+                    });
+                })
+                .catch(error => {
+                  console.log(error);
+                });
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    updateStudentContentConfirm() {
+      let updateobj = {
+        studentid: this.$route.query.studentid,
+        studentname: this.content.studentname,
+        phonenum: this.content.phonenum,
+        belong_class_id: this.content.belongclassid
+      };
+      updateStudentDetail(updateobj)
+        .then(result => {
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+            return;
+          }
+          var obj = {
+            id: this.$route.query.studentid
+          };
+          getStudent(obj)
+            .then(result => {
+              if (result.status !== 200) {
+                this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+                return;
+              }
+              // console.log(result);
+              var res = result.data[0];
+              this.name = res.studentname;
+              this.classnum = res.bugclassnum;
+              this.phonenum = res.phonenum;
+              this.giveclass = res.giveclass;
+              this.foldleadnew = res.foldleadnew;
+              var cobj = {
+                id: res.belong_class_id
+              };
+              getClass(cobj)
+                .then(result => {
+                  if (result.status !== 200) {
+                    this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+                    return;
+                  }
+                  // console.log(result);
+                  this.belongclass = result.data[0].classname;
+                  this.belongclassid = result.data[0].classid;
                 })
                 .catch(error => {
                   console.log(error);
@@ -317,6 +457,31 @@ export default {
     delGiveClass() {
       this.dialogGiveClass = true;
       this.usegive = '';
+    },
+    updateStudentContent() {
+      this.dialogUpdateStudentContent = true;
+      getClassList()
+        .then(result => {
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+            return;
+          }
+          var reslist = result.data;
+          reslist.forEach((item, i) => {
+            let obj = {};
+            obj.text = item.classname;
+            obj.value = item.classid;
+            this.classList.push(obj);
+          });
+          this.content.studentname = JSON.parse(JSON.stringify(this.name));
+          this.content.phonenum = JSON.parse(JSON.stringify(this.phonenum));
+          this.content.belongclass = JSON.parse(JSON.stringify(this.belongclass));
+          this.content.belongclassid = JSON.parse(JSON.stringify(this.belongclassid));
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     onClickLeft() {
       this.$router.go(-1);

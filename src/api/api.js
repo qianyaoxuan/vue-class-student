@@ -28,5 +28,6 @@ export const updateStudentgiveclass = params => post('updateStudentgiveclass', p
 export const updateStudentclass = params => post('updateStudentclass', params);
 export const searchStudent = params => post('searchStudent', params);
 export const getStudent = params => post('getStudent', params);
+export const updateStudentDetail = params => post('updateStudentDetail', params);
 export const delCourse = params => post('delCourse', params);
 export const getdelCourseHistory = params => post('getdelCourseHistory', params);

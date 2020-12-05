@@ -1,9 +1,6 @@
 <template>
   <div class="home">
-    <!-- <van-button type="primary" size="small" to="/Student">录入学员</van-button> -->
-
-
-
+    
       <van-dropdown-menu>
   <van-dropdown-item v-model="class1" :options="classList" />
 </van-dropdown-menu>
