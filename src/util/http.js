@@ -41,6 +41,13 @@ axios.interceptors.response.use(
             forbidClick: true
           });
           break;
+        case 500:
+          Toast({
+            message: '服务器异常',
+            duration: 1500,
+            forbidClick: true
+          });
+          break;
         default:
           Toast({
             message: error.response.data.message,

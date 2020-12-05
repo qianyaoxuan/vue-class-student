@@ -1,11 +1,15 @@
 <template>
   <div class="home">
+
     <van-search v-model="searchValue" placeholder="请输入学员姓名" show-action @search="onSearch">
       <div slot="action" @click="onSearch">搜索</div>
     </van-search>
- <van-button type="primary" size="small" to="/Student">录入学员</van-button>
-<van-cell   v-for='value in studentList' :key="value.name" :title="value.name"  is-link  @click='toStudentDetail(value)'/>
 
+ <van-button type="primary" size="small" to="/Student">录入学员</van-button>
+<!-- <van-cell   v-for='value in studentList' :key="value.name" :title="value.name"  is-link  @click='toStudentDetail(value)'/> -->
+    <van-grid :column-num="2">
+  <van-grid-item v-for="(item,index) in classstudentList" :key="index" icon="photo-o" :text="getText(item)" @click='toClassDetail(item)' />
+</van-grid>
   </div>
 </template>
 
@@ -14,7 +18,7 @@ import goodItem from '@/components/goodItem/goodItem';
 import scrollX from '@/components/scroll/scrollX';
 import backgroundImg from '@/components/backgroundImg/backgroundImg';
 import tabItem from '@/components/tabItem/tabItem';
-import { hotSale, saleGroup, getClassList, getStudentlist, discover } from '@/api/api';
+import { hotSale, saleGroup, getClassList, getClassStudentlist, getStudentlist, discover } from '@/api/api';
 import { mapMutations } from 'vuex';
 export default {
   name: 'Home',
@@ -33,13 +37,18 @@ export default {
       saleGroupGoods: [],
       discoverGoods: [],
       classList: [],
-      studentList: []
+      studentList: [],
+      classstudentList: []
     };
   },
   mounted() {
     getClassList()
       .then(result => {
-        console.log(result);
+        if (result.status !== 200) {
+          this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+          return;
+        }
         var reslist = result.data;
         reslist.forEach((item, i) => {
           let obj = {};
@@ -53,16 +62,62 @@ export default {
         console.log(error);
       });
 
-    getStudentlist()
+    // getStudentlist()
+    //   .then(result => {
+    //     // console.log(result);
+    //     var stulist = result.data;
+    //     stulist.forEach((item, i) => {
+    //       let obj = {};
+    //       obj.name = item.studentname;
+    //       obj.id = item.studentid;
+    //       this.studentList.push(obj);
+    //     });
+    //     // this.checkedGoods = [];
+    //   })
+    //   .catch(error => {
+    //     console.log(error);
+    //   });
+    getClassStudentlist()
       .then(result => {
+        if (result.status !== 200) {
+          this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+          return;
+        }
         // console.log(result);
         var stulist = result.data;
+        var tmp = [];
         stulist.forEach((item, i) => {
-          let obj = {};
-          obj.name = item.studentname;
-          obj.id = item.studentid;
-          this.studentList.push(obj);
+          let classindex = tmp.findIndex(t => t.classid === item.classid);
+          if (classindex === -1) {
+            console.log(item.studentid);
+            if (item.studentid) {
+              tmp.push({
+                classid: item.classid,
+                classname: item.classname,
+                num: 1
+              });
+            } else {
+              tmp.push({
+                classid: item.classid,
+                classname: item.classname,
+                num: 0
+              });
+            }
+          } else {
+            if (item.studentid) {
+              let n = tmp[classindex].num + 1;
+              tmp[classindex].num = n;
+            }
+          }
+
+          // let obj = {};
+          // obj.name = item.studentname;
+          // obj.id = item.studentid;
+          // this.studentList.push(obj);
         });
+        console.log(tmp);
+        this.classstudentList = tmp;
         // this.checkedGoods = [];
       })
       .catch(error => {
@@ -102,6 +157,18 @@ export default {
           studentid: val.id
         }
       });
+    },
+    toClassDetail(val) {
+      this.$router.push({
+        path: '/Class',
+        query: {
+          classid: val.classid
+        }
+      });
+    },
+    getText(val) {
+      var str = '班级：' + val.classname + '; 人数：' + val.num;
+      return str;
     },
     changeSwipe(index) {
       this.indexPage = index;

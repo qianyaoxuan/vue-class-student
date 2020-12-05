@@ -244,6 +244,7 @@ DROP TABLE IF EXISTS `course`;
 CREATE TABLE `course`  (
   `courseid` int(11) NOT NULL AUTO_INCREMENT,
   `student` char(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+   `studentid` int(11) NOT NULL ,
   `teacher` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `coursetype` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `coursenum` int(11) NOT NULL,

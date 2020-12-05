@@ -1,12 +1,19 @@
 <template>
   <div class="home">
+
+        <van-nav-bar
+  left-text="返回"
+  left-arrow
+  @click-left="onClickLeft"
+/>
 <van-cell-group>
   <van-cell title="姓名" :value="name" />
   <van-cell title="所属班级" :value="belongclass" />
   <van-cell title="手机号" :value="phonenum" />
   <van-cell title="购买课时" is-link :value="classnum"  @click='delClass' />
   <van-cell title="已赠送课时"  is-link :value="giveclass" @click='delGiveClass'  />
-  <van-cell title="是否老带新" :value="foldleadnew" />
+  <van-cell  v-if='foldleadnew===1' title="是否老带新" value="是"  />
+  <van-cell  v-else title="是否老带新" value="否"  />
 </van-cell-group>
 
 <van-dialog v-model="dialogClass" title="购买课时销课" show-cancel-button @confirm='delClassConfirm'>
@@ -23,7 +30,7 @@
   :max-date="maxDate"
 />
 </van-dialog>
-<van-dialog v-model="dialogGiveClass" title="赠送课时销课" show-cancel-button>
+<van-dialog v-model="dialogGiveClass" title="赠送课时销课" show-cancel-button @confirm='delGiveClassConfirm'>
       <van-cell title="剩余课时" :value="giveclass"   />
    <van-field v-model="usegive" label="本次销耗课时" />
     <van-datetime-picker
@@ -34,6 +41,27 @@
   :max-date="maxDate"
 />
 </van-dialog>
+  <div>销课历史</div>
+    <div>
+  <van-cell-group>
+      <van-row >
+  <van-col span="4">  <van-cell title="类型" /></van-col>
+  <van-col span="8">  <van-cell  title='课时'  /></van-col>
+  <van-col span="7">  <van-cell title="时间" /></van-col>
+  <van-col span="5">  <van-cell  value="操作人" /></van-col>
+</van-row>
+
+</van-cell-group>  
+    <van-cell-group v-for='(item,index) in delcourseHistoryList' :key='index'>
+      <van-row >
+  <van-col span="4">  <van-cell :value="getType(item)" /></van-col>
+  <van-col span="8">  <van-cell  :title='item.coursenum' :label="getCourseBeforeAndAfter(item)"  /></van-col>
+  <van-col span="7">  <van-cell :value="getLocalTime(item.coursedate)" /></van-col>
+  <van-col span="5">  <van-cell  :value="item.teacher" /></van-col>
+</van-row>
+
+</van-cell-group>  
+    </div>
   </div>
 </template>
 
@@ -51,6 +79,7 @@ import {
   addStudent,
   updateStudentgiveclass,
   updateStudentclass,
+  getdelCourseHistory,
   delCourse,
   discover
 } from '@/api/api';
@@ -71,17 +100,30 @@ export default {
       date: '',
       usegive: '',
       dategive: '',
+      delcourseHistoryList: [],
       minDate: new Date(2018, 0, 1),
       maxDate: new Date(2025, 10, 1)
     };
   },
-  mounted() {
+  activated() {
+    this.name = '';
+    this.classnum = '';
+    this.phonenum = '';
+    this.giveclass = '';
+    this.foldleadnew = '';
+    this.belongclass = '';
     var sid = this.$route.query.studentid;
-    let obj = {
+    var obj = {
       id: sid
     };
+
     getStudent(obj)
       .then(result => {
+        if (result.status !== 200) {
+          this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+          return;
+        }
         // console.log(result);
         var res = result.data[0];
         this.name = res.studentname;
@@ -92,15 +134,36 @@ export default {
         let cobj = {
           id: res.belong_class_id
         };
-        console.log(cobj);
         getClass(cobj)
           .then(result => {
-            console.log(result);
+            if (result.status !== 200) {
+              this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+              return;
+            }
+            // console.log(result);
             this.belongclass = result.data[0].classname;
           })
           .catch(error => {
             console.log(error);
           });
+      })
+      .catch(error => {
+        console.log(error);
+      });
+    var sobj = {
+      studentid: sid
+    };
+    getdelCourseHistory(sobj)
+      .then(result => {
+        if (result.status !== 200) {
+          this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+          return;
+        }
+        console.log(result);
+        this.delcourseHistoryList = result.data;
+        // this.belongclass = result.data[0].classname;
       })
       .catch(error => {
         console.log(error);
@@ -128,6 +191,7 @@ export default {
     addSubmit() {},
     delClass() {
       this.dialogClass = true;
+      this.use = '';
     },
     delClassConfirm() {
       var freeclassnum = parseInt(this.classnum) - parseInt(this.use);
@@ -137,12 +201,18 @@ export default {
       };
       updateStudentclass(obj)
         .then(result => {
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+            return;
+          }
           // console.log(this.date);
           // console.log(this.date.getTime());
           // var ddd = this.date.getTime();
           // console.log(Math.round(ddd / 1000));
           var time = this.date.getTime() + '';
           let delobj = {
+            studentid: this.$route.query.studentid,
             student: this.name,
             coursetype: 'class',
             coursenum: this.use,
@@ -153,15 +223,84 @@ export default {
           // console.log(delobj);
           delCourse(delobj)
             .then(result => {
+              if (result.status !== 200) {
+                this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+                return;
+              }
               var sid = this.$route.query.studentid;
               let obj = {
                 id: sid
               };
               getStudent(obj)
                 .then(result => {
+                  if (result.status !== 200) {
+                    this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+                    return;
+                  }
                   var res = result.data[0];
                   this.classnum = res.bugclassnum;
                   this.giveclass = res.giveclass;
+                  this.$toast.success('销课成功~');
+                })
+                .catch(error => {
+                  console.log(error);
+                });
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
+    delGiveClassConfirm() {
+      var freegiveclassnum = parseInt(this.giveclass) - parseInt(this.usegive);
+      let obj = {
+        name: this.name,
+        giveclass: freegiveclassnum
+      };
+      updateStudentgiveclass(obj)
+        .then(result => {
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+            return;
+          }
+          // console.log(result);
+          var givetime = this.dategive.getTime() + '';
+          let delobj = {
+            student: this.name,
+            studentid: this.$route.query.studentid,
+            coursetype: 'giveclass',
+            coursenum: this.usegive,
+            coursedate: givetime,
+            coursebefore: this.giveclass,
+            courseafter: freegiveclassnum + ''
+          };
+          delCourse(delobj)
+            .then(result => {
+              if (result.status !== 200) {
+                this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                return;
+              }
+              var sid = this.$route.query.studentid;
+              let obj = {
+                id: sid
+              };
+              getStudent(obj)
+                .then(result => {
+                  if (result.status !== 200) {
+                    this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+                    return;
+                  }
+                  var res = result.data[0];
+                  this.classnum = res.bugclassnum;
+                  this.giveclass = res.giveclass;
+                  this.$toast.success('销课成功~');
                 })
                 .catch(error => {
                   console.log(error);
@@ -177,13 +316,42 @@ export default {
     },
     delGiveClass() {
       this.dialogGiveClass = true;
+      this.usegive = '';
     },
-    changeSwipe(index) {
-      this.indexPage = index;
+    onClickLeft() {
+      this.$router.go(-1);
     },
     showGood(item) {
       this.setGood(item);
       this.$router.push('/Good');
+    },
+    getType(val) {
+      if (val.coursetype === 'giveclass') {
+        return '赠送课时';
+      }
+      if (val.coursetype === 'class') {
+        return '购买课时';
+      }
+    },
+    getLocalTime(nS) {
+      console.log(nS);
+      return new Date(parseInt(nS)).toLocaleString().replace(/:\d{1,2}$/, ' ');
+    },
+    getCourseBeforeAndAfter(val) {
+      if (val.coursenum <= 0) {
+        if (val.coursebefore) {
+          let beforecoursestr = '销课前课时：' + val.coursebefore;
+          return beforecoursestr;
+        }
+      } else {
+        if (val.coursebefore) {
+          let beforecoursestr = '销课前课时：' + val.coursebefore;
+          var morenum = parseInt(val.coursebefore) - parseInt(val.coursenum);
+          let aftercoursestr = '，剩余课时：' + morenum;
+
+          return beforecoursestr + aftercoursestr;
+        }
+      }
     },
     ...mapMutations({
       setGood: 'SET_GOOD_MUTATION'

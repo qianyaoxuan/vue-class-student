@@ -74,29 +74,13 @@ export default {
     };
   },
   mounted() {
-    hotSale()
-      .then(result => {
-        this.hotGoods = result.data;
-      })
-      .catch(error => {
-        console.log(error);
-      });
-    saleGroup()
-      .then(result => {
-        this.saleGroupGoods = result.data;
-      })
-      .catch(error => {
-        console.log(error);
-      });
-    discover()
-      .then(result => {
-        this.discoverGoods = result.data;
-      })
-      .catch(error => {
-        console.log(error);
-      });
     getClassList()
       .then(result => {
+        if (result.status !== 200) {
+          this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+          return;
+        }
         console.log(result);
         var reslist = result.data;
         reslist.forEach((item, i) => {
@@ -105,8 +89,6 @@ export default {
           obj.value = item.classid;
           this.classList.push(obj);
         });
-        // this.class1 = this.classList[0].value;
-        // this.checkedGoods = [];
       })
       .catch(error => {
         console.log(error);
@@ -138,6 +120,11 @@ export default {
       };
       searchStudent(obj)
         .then(result => {
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+            return;
+          }
           // console.log(result);
           var res = result.data;
           if (res.length) {
@@ -183,6 +170,11 @@ export default {
       }
       searchStudent(sobj)
         .then(result => {
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+            return;
+          }
           var res = result.data;
           if (res.length) {
             this.$toast.fail('学员名重复');
@@ -205,6 +197,11 @@ export default {
             }
             addStudent(sobj)
               .then(result => {
+                if (result.status !== 200) {
+                  this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+                  return;
+                }
                 if (this.checked) {
                   var totaloldgive = parseInt(this.old.giveclass) + parseInt(this.oldgiveclass);
                   let oldobj = {
@@ -213,6 +210,11 @@ export default {
                   };
                   updateStudentgiveclass(oldobj)
                     .then(result => {
+                      if (result.status !== 200) {
+                        this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+                        return;
+                      }
                       this.text = '';
                       this.tel = '';
                       this.digit = '';

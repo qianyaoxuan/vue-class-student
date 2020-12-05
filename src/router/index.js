@@ -13,6 +13,7 @@ const EditAddress = () => import(/* webpackChunkName: "EditAddress" */ '@/views/
 const OrderList = () => import(/* webpackChunkName: "OrderList" */ '@/views/OrderList/OrderList');
 const Student = () => import(/* webpackChunkName: "Student" */ '@/views/Student/Student');
 const StudentDetail = () => import(/* webpackChunkName: "StudentDetail" */ '@/views/Student/Detail');
+const Class = () => import(/* webpackChunkName: "Class" */ '@/views/Class/Class');
 
 Vue.use(Router);
 
@@ -36,7 +37,18 @@ export default new Router({
     {
       path: '/StudentDetail',
       name: 'StudentDetail',
-      component: StudentDetail
+      component: StudentDetail,
+      meta: {
+        fullScreen: true
+      }
+    },
+    {
+      path: '/Class',
+      name: 'Class',
+      component: Class,
+      meta: {
+        fullScreen: true
+      }
     },
     {
       path: '/User',
