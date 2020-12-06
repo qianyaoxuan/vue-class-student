@@ -1,5 +1,5 @@
 import { get, post } from '@/util/http';
-export const test = () => get('/');
+export const test = () => get('/text');
 export const login = params => post('login', params);
 export const quit = () => get('quit');
 export const reg = params => post('reg', params);
@@ -31,3 +31,4 @@ export const getStudent = params => post('getStudent', params);
 export const updateStudentDetail = params => post('updateStudentDetail', params);
 export const delCourse = params => post('delCourse', params);
 export const getdelCourseHistory = params => post('getdelCourseHistory', params);
+export const handleHistory = params => post('handleHistory', params);

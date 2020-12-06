@@ -17,16 +17,7 @@ import goodItem from '@/components/goodItem/goodItem';
 import scrollX from '@/components/scroll/scrollX';
 import backgroundImg from '@/components/backgroundImg/backgroundImg';
 import tabItem from '@/components/tabItem/tabItem';
-import {
-  hotSale,
-  saleGroup,
-  getClassList,
-  addStudent,
-  getOneClassStudentlist,
-  getClass,
-  searchStudent,
-  discover
-} from '@/api/api';
+import { hotSale, saleGroup, getClassList, getOneClassStudentlist, getClass, searchStudent, discover } from '@/api/api';
 import { mapMutations } from 'vuex';
 export default {
   name: 'Home',

@@ -582,7 +582,7 @@ router.post('/getStudentlist', function(req, res, next) {
 //获取学员信息
 router.post('/searchStudent', function(req, res, next) {
   var name = req.body.name;
-  var sql = `SELECT student.studentname,student.bugclassnum,student.giveclass,class.classname,class.classid FROM student,class WHERE class.classid=student.belong_class_id and  studentname=?`;
+  var sql = `SELECT student.studentid,student.studentname,student.bugclassnum,student.giveclass,class.classname,class.classid FROM student,class WHERE class.classid=student.belong_class_id and  studentname=?`;
   var sqlParams = [name];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
@@ -779,6 +779,31 @@ router.post('/getOneClassStudentlist', function(req, res, next) {
   var classid = req.body.classid;
   var sql = `select * from student where belong_class_id = ? `;
   var sqlParams = [classid];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+
+//销课
+router.post('/handleHistory', function(req, res, next) {
+  var type = req.body.type;
+  var value = req.body.value;
+  var username = req.cookies.username;
+
+  sql = 'INSERT INTO handlehistory(username,type,value) VALUES(?,?,?)';
+  var sqlParams = [username, type, value];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
       res.json({

@@ -86,7 +86,7 @@
 <script>
 import { Toast, Dialog } from 'vant';
 import { mapGetters, mapMutations } from 'vuex';
-import { addClass, getClassList, updateClass, updateCartCount, delFromCart } from '@/api/api';
+import { addClass, handleHistory, getClassList, updateClass, updateCartCount, delFromCart } from '@/api/api';
 export default {
   name: 'Cart',
   data() {
@@ -101,6 +101,7 @@ export default {
       updateShow: false,
       editGood: {},
       classname: '',
+      originname: '',
       update: {
         updateid: '',
         updatename: ''
@@ -145,6 +146,7 @@ export default {
     toUpdateClass(val) {
       this.update.updatename = val.classname;
       this.update.updateid = val.classid;
+      this.originname = val.classname;
       this.updateShow = true;
     },
     reduceCount(item, count) {
@@ -235,13 +237,32 @@ export default {
       };
       addClass(obj)
         .then(result => {
-          console.log(result);
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+            return;
+          }
           this.$toast.success('添加成功~');
-          getClassList()
+          var valuestr = '添加新班级，名称：' + this.classname;
+          let handletype = {
+            type: 'addclass',
+            value: valuestr
+          };
+
+          handleHistory(handletype)
             .then(result => {
-              console.log(result);
-              this.classList = result.data;
-              // this.checkedGoods = [];
+              if (result.status !== 200) {
+                this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                return;
+              }
+              getClassList()
+                .then(result => {
+                  console.log(result);
+                  this.classList = result.data;
+                })
+                .catch(error => {
+                  console.log(error);
+                });
             })
             .catch(error => {
               console.log(error);
@@ -256,17 +277,37 @@ export default {
 
       updateClass(this.update)
         .then(result => {
-          console.log(result);
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+            return;
+          }
+          // console.log(result);
           this.$toast.success('更新成功~');
-          getClassList()
-            .then(result => {
-              // console.log(result);
-              this.classList = result.data;
-              // this.checkedGoods = [];
-            })
-            .catch(error => {
-              console.log(error);
-            });
+          var valuestr =
+            '更新班级名称，id:' +
+            this.update.updateid +
+            ';原名称：' +
+            this.originname +
+            ';新名称：' +
+            this.update.updatename;
+          let handletype = {
+            type: 'addclass',
+            value: valuestr
+          };
+          handleHistory(handletype).then(result => {
+            if (result.status !== 200) {
+              this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+              return;
+            }
+            getClassList()
+              .then(result => {
+                console.log(result);
+                this.classList = result.data;
+              })
+              .catch(error => {
+                console.log(error);
+              });
+          });
         })
         .catch(error => {
           console.log(error);

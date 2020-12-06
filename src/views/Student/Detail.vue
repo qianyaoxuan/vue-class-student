@@ -44,8 +44,8 @@
   <!-- <img src="https://img.yzcdn.cn/vant/apple-3.jpg" /> -->
     <van-cell title="剩余课时"  type="digit"  :value="classnum"   />
     <van-cell title="剩余赠送课时"  type="digit"  :value="giveclass"   />
-   <van-field v-model="add.classnum" label="购买课时添加" />
-   <van-field v-model="add.giveclassnum" label="赠送课时添加" />
+   <van-field v-model="add.classnum" type="digit"  label="购买课时添加" />
+   <van-field v-model="add.giveclassnum"  type="digit" label="赠送课时添加" />
    <!-- <van-field v-model="date" label="时间" /> -->
 </van-dialog>
 <van-dialog v-model="dialogClass" title="购买课时销课"  :before-close="onBeforeClose" show-cancel-button >
@@ -111,6 +111,7 @@ import {
   getClassList,
   getStudent,
   updateStudentgiveclass,
+  handleHistory,
   updateStudentclass,
   getdelCourseHistory,
   updateStudentDetail,
@@ -273,8 +274,20 @@ export default {
       }
     },
     addCourseConfirm() {
-      var newclassnum = parseInt(this.classnum) + parseInt(this.add.classnum);
-      var newgiveclassnum = parseInt(this.giveclass) + parseInt(this.add.giveclassnum);
+      console.log(this.add.classnum);
+      var newclassnum;
+      var newgiveclassnum;
+      if (this.add.classnum) {
+        newclassnum = parseInt(this.classnum) + parseInt(this.add.classnum);
+      } else {
+        newclassnum = parseInt(this.classnum);
+      }
+
+      if (this.add.giveclassnum) {
+        newgiveclassnum = parseInt(this.giveclass) + parseInt(this.add.giveclassnum);
+      } else {
+        newgiveclassnum = parseInt(this.giveclass);
+      }
       let addobj = {
         name: this.name,
         bugclassnum: newclassnum
@@ -313,6 +326,31 @@ export default {
                   var sobj = {
                     studentid: res.studentid
                   };
+                  var valuestr =
+                    '学员增加课程,姓名：' +
+                    this.name +
+                    ';id：' +
+                    this.$route.query.studentid +
+                    ';买课添加：' +
+                    this.add.classnum +
+                    ';赠课添加：' +
+                    this.add.giveclassnum +
+                    ';时间：' +
+                    this.getLocalTime(Date.parse(new Date()));
+                  let handletype = {
+                    type: 'addcourse',
+                    value: valuestr
+                  };
+                  handleHistory(handletype)
+                    .then(result => {
+                      if (result.status !== 200) {
+                        this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                        return;
+                      }
+                    })
+                    .catch(error => {
+                      console.log(error);
+                    });
                 })
                 .catch(error => {
                   console.log(error);
@@ -384,7 +422,34 @@ export default {
                       }
                       // console.log(result);
                       this.delcourseHistoryList = result.data;
-                      // this.belongclass = result.data[0].classname;
+                      var valuestr =
+                        '学员销课,姓名：' +
+                        delobj.student +
+                        ';id：' +
+                        delobj.studentid +
+                        ';类型： 买课' +
+                        ';时间：' +
+                        this.getLocalTime(delobj.coursedate) +
+                        ';课时：' +
+                        delobj.coursenum +
+                        '；销课前课时：' +
+                        delobj.coursebefore +
+                        ';剩余：' +
+                        delobj.courseafter;
+                      let handletype = {
+                        type: 'delcourse',
+                        value: valuestr
+                      };
+                      handleHistory(handletype)
+                        .then(result => {
+                          if (result.status !== 200) {
+                            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                            return;
+                          }
+                        })
+                        .catch(error => {
+                          console.log(error);
+                        });
                     })
                     .catch(error => {
                       console.log(error);
@@ -436,7 +501,7 @@ export default {
           }
           // console.log(result);
           var givetime = this.dategive.getTime() + '';
-          let delobj = {
+          var delobj = {
             student: this.name,
             studentid: this.$route.query.studentid,
             coursetype: 'giveclass',
@@ -466,6 +531,7 @@ export default {
                   this.classnum = res.bugclassnum;
                   this.giveclass = res.giveclass;
                   this.$toast.success('销课成功~');
+
                   var sobj = {
                     studentid: res.studentid
                   };
@@ -478,7 +544,34 @@ export default {
                       }
                       // console.log(result);
                       this.delcourseHistoryList = result.data;
-                      // this.belongclass = result.data[0].classname;
+                      var valuestr =
+                        '学员销课,姓名：' +
+                        delobj.student +
+                        ';id：' +
+                        delobj.studentid +
+                        ';类型： 赠课' +
+                        ';时间：' +
+                        this.getLocalTime(delobj.coursedate) +
+                        ';课时：' +
+                        delobj.coursenum +
+                        '；销课前课时：' +
+                        delobj.coursebefore +
+                        ';剩余：' +
+                        delobj.courseafter;
+                      let handletype = {
+                        type: 'delcourse',
+                        value: valuestr
+                      };
+                      handleHistory(handletype)
+                        .then(result => {
+                          if (result.status !== 200) {
+                            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                            return;
+                          }
+                        })
+                        .catch(error => {
+                          console.log(error);
+                        });
                     })
                     .catch(error => {
                       console.log(error);
@@ -550,6 +643,35 @@ export default {
                   // console.log(result);
                   this.belongclass = result.data[0].classname;
                   this.belongclassid = result.data[0].classid;
+
+                  var valuestr =
+                    '更新学员信息，id：' +
+                    this.$route.query.studentid +
+                    ';姓名：' +
+                    updateobj.studentname +
+                    ';手机号：' +
+                    updateobj.phonenum +
+                    ';备注：' +
+                    updateobj.remarks +
+                    ';班级：' +
+                    this.belongclass +
+                    ';时间：' +
+                    this.getLocalTime(Date.parse(new Date()));
+
+                  let handletype = {
+                    type: 'updatestudentcontent',
+                    value: valuestr
+                  };
+                  handleHistory(handletype)
+                    .then(result => {
+                      if (result.status !== 200) {
+                        this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                        return;
+                      }
+                    })
+                    .catch(error => {
+                      console.log(error);
+                    });
                 })
                 .catch(error => {
                   console.log(error);

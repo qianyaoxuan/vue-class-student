@@ -47,6 +47,7 @@ import {
   addStudent,
   updateStudentgiveclass,
   searchStudent,
+  handleHistory,
   discover
 } from '@/api/api';
 import { mapMutations } from 'vuex';
@@ -64,6 +65,7 @@ export default {
       givedigit: '',
       remarks: '',
       oldgiveclass: '',
+      origingiveclass: '',
       old: {
         name: '空',
         classname: '',
@@ -203,11 +205,11 @@ export default {
               .then(result => {
                 if (result.status !== 200) {
                   this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
-
                   return;
                 }
                 if (this.checked) {
                   var totaloldgive = parseInt(this.old.giveclass) + parseInt(this.oldgiveclass);
+                  this.origingiveclass = this.oldgiveclass;
                   let oldobj = {
                     name: this.old.name,
                     giveclass: totaloldgive
@@ -216,13 +218,11 @@ export default {
                     .then(result => {
                       if (result.status !== 200) {
                         this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
-
                         return;
                       }
                       this.text = '';
                       this.tel = '';
                       this.digit = '';
-                      this.class1 = '';
                       this.givedigit = '';
                       this.remarks = '';
                       this.oldgiveclass = '';
@@ -234,7 +234,69 @@ export default {
                         classnum: '',
                         giveclass: ''
                       };
+                      var flodstr = '';
+                      if (sobj.foldleadnew === 1) {
+                        flodstr = '是';
+                      } else if (sobj.foldleadnew === 0) {
+                        flodstr = '否';
+                      } else {
+                        flodstr = sobj.foldleadnew;
+                      }
+                      var valuestr =
+                        '添加新学学员,姓名：' +
+                        sobj.name +
+                        ';手机号：' +
+                        sobj.phonenum +
+                        ';班级：' +
+                        sobj.belong_class_id +
+                        ';购买课程：' +
+                        sobj.classnum +
+                        ';赠送课程：' +
+                        sobj.giveclass +
+                        ';是否老带新：' +
+                        flodstr +
+                        ';备注：' +
+                        ';老学员姓名：' +
+                        oldobj.name +
+                        ';老员工赠课：' +
+                        this.origingiveclass;
                       this.$toast.success('学员添加成功~');
+                      let handletype = {
+                        type: 'addstudent',
+                        value: valuestr
+                      };
+                      handleHistory(handletype)
+                        .then(result => {
+                          if (result.status !== 200) {
+                            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                            return;
+                          }
+                          var oldstr =
+                            '老带新赠课：新学员姓名' +
+                            sobj.name +
+                            ';老学员姓名：' +
+                            oldobj.name +
+                            ';老员工赠课：' +
+                            this.origingiveclass;
+                          this.$toast.success('学员添加成功~');
+                          let oldstudenttype = {
+                            type: 'updategiveclass',
+                            value: oldstr
+                          };
+                          handleHistory(oldstudenttype)
+                            .then(result => {
+                              if (result.status !== 200) {
+                                this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                                return;
+                              }
+                            })
+                            .catch(error => {
+                              console.log(error);
+                            });
+                        })
+                        .catch(error => {
+                          console.log(error);
+                        });
                     })
                     .catch(error => {
                       console.log(error);
@@ -244,7 +306,6 @@ export default {
                   this.text = '';
                   this.tel = '';
                   this.digit = '';
-                  this.class1 = '';
                   this.givedigit = '';
                   this.remarks = '';
                   this.oldgiveclass = '';
@@ -256,6 +317,44 @@ export default {
                     classnum: '',
                     giveclass: ''
                   };
+                  var flodstr = '';
+                  if (sobj.foldleadnew === 1) {
+                    flodstr = '是';
+                  } else if (sobj.foldleadnew === 0) {
+                    flodstr = '否';
+                  } else {
+                    flodstr = sobj.foldleadnew;
+                  }
+                  var valuestr =
+                    '添加新学学员,姓名：' +
+                    sobj.name +
+                    ';手机号：' +
+                    sobj.phonenum +
+                    ';班级：' +
+                    sobj.belong_class_id +
+                    ';购买课程：' +
+                    sobj.classnum +
+                    ';赠送课程：' +
+                    sobj.giveclass +
+                    ';是否老带新：' +
+                    flodstr +
+                    ';备注：' +
+                    sobj.remarks;
+                  this.$toast.success('学员添加成功~');
+                  let handletype = {
+                    type: 'addstudent',
+                    value: valuestr
+                  };
+                  handleHistory(handletype)
+                    .then(result => {
+                      if (result.status !== 200) {
+                        this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                        return;
+                      }
+                    })
+                    .catch(error => {
+                      console.log(error);
+                    });
                 }
               })
               .catch(error => {

@@ -18,7 +18,15 @@ import goodItem from '@/components/goodItem/goodItem';
 import scrollX from '@/components/scroll/scrollX';
 import backgroundImg from '@/components/backgroundImg/backgroundImg';
 import tabItem from '@/components/tabItem/tabItem';
-import { hotSale, saleGroup, getClassList, getClassStudentlist, getStudentlist, discover } from '@/api/api';
+import {
+  hotSale,
+  searchStudent,
+  saleGroup,
+  getClassList,
+  getClassStudentlist,
+  getStudentlist,
+  discover
+} from '@/api/api';
 import { mapMutations } from 'vuex';
 export default {
   name: 'Home',
@@ -36,6 +44,7 @@ export default {
       checked: false,
       saleGroupGoods: [],
       discoverGoods: [],
+
       classList: [],
       studentList: [],
       classstudentList: []
@@ -81,7 +90,6 @@ export default {
       .then(result => {
         if (result.status !== 200) {
           this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
-
           return;
         }
         // console.log(result);
@@ -90,7 +98,6 @@ export default {
         stulist.forEach((item, i) => {
           let classindex = tmp.findIndex(t => t.classid === item.classid);
           if (classindex === -1) {
-            console.log(item.studentid);
             if (item.studentid) {
               tmp.push({
                 classid: item.classid,
@@ -110,11 +117,6 @@ export default {
               tmp[classindex].num = n;
             }
           }
-
-          // let obj = {};
-          // obj.name = item.studentname;
-          // obj.id = item.studentid;
-          // this.studentList.push(obj);
         });
         console.log(tmp);
         this.classstudentList = tmp;
@@ -144,7 +146,36 @@ export default {
   },
   methods: {
     onSearch() {
-      console.log('onSearch');
+      // console.log('onSearch');
+      let obj = {
+        name: this.searchValue
+      };
+      searchStudent(obj)
+        .then(result => {
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+            return;
+          }
+
+          var res = result.data;
+          // console.log(result);
+          if (res.length) {
+            var sid = res[0].studentid;
+            this.$router.push({
+              path: '/StudentDetail',
+              query: {
+                studentid: sid
+              }
+            });
+          } else {
+            this.$toast.success('未查询到学员');
+          }
+          // this.$toast.success('更新成功~');
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     addSubmit() {},
     addStudent() {
