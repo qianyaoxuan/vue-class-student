@@ -32,7 +32,10 @@ export default new Router({
     {
       path: '/Student',
       name: 'Student',
-      component: Student
+      component: Student,
+      meta: {
+        fullScreen: true
+      }
     },
     {
       path: '/StudentDetail',

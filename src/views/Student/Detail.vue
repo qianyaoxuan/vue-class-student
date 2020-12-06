@@ -14,10 +14,12 @@
   <van-cell title="已赠送课时"  is-link :value="giveclass" @click='delGiveClass'  />
   <van-cell  v-if='foldleadnew===1' is-link  title="是否老带新" value="是"   @click='updateStudentContent'/>
   <van-cell  v-else is-link  title="是否老带新" value="否"  @click='updateStudentContent' />
+   <van-cell title="备注"  is-link :value="remarks" @click='updateStudentContent'  />
 </van-cell-group>
 <van-dialog v-model="dialogUpdateStudentContent" title="更新学员信息" show-cancel-button @confirm='updateStudentContentConfirm'>
    <van-field v-model="content.studentname" label="姓名" />
-   <van-field v-model="content.phonenum" label="手机号" />
+   <van-field v-model="content.phonenum"  type="tel" label="手机号" />
+
 <van-field
   readonly
   clickable
@@ -36,9 +38,10 @@
         @cancel="showPicker = false"
       />
       </van-popup>
+         <van-field v-model="content.remarks" label="备注" />
 </van-dialog>
 
-<van-dialog v-model="dialogClass" title="购买课时销课" show-cancel-button @confirm='delClassConfirm'>
+<van-dialog v-model="dialogClass" title="购买课时销课"  :before-close="onBeforeClose" show-cancel-button >
   <!-- <img src="https://img.yzcdn.cn/vant/apple-3.jpg" /> -->
     <van-cell title="剩余课时" :value="classnum"   />
    <van-field v-model="use" label="本次销耗课时" />
@@ -52,9 +55,9 @@
   :max-date="maxDate"
 />
 </van-dialog>
-<van-dialog v-model="dialogGiveClass"  :before-close="onBeforeGiveClose" title="赠送课时销课" show-cancel-button @confirm='delGiveClassConfirm'>
+<van-dialog v-model="dialogGiveClass"  :before-close="onBeforeGiveClose" title="赠送课时销课" show-cancel-button >
       <van-cell title="剩余课时" :value="giveclass"   />
-   <van-field v-model="usegive" label="本次销耗课时" />
+   <van-field v-model="usegive" type="digit"  label="本次销耗课时" />
     <van-datetime-picker
   v-model="dategive"
   type="date"
@@ -98,7 +101,6 @@ import {
   getClass,
   getClassList,
   getStudent,
-  addStudent,
   updateStudentgiveclass,
   updateStudentclass,
   getdelCourseHistory,
@@ -118,6 +120,7 @@ export default {
       belongclass: '',
       classnum: '',
       phonenum: '',
+      remarks: '',
       giveclass: '',
       foldleadnew: '',
       dialogGiveClass: false,
@@ -129,7 +132,8 @@ export default {
       dategive: '',
       content: {
         studentname: '',
-        phonenum: ''
+        phonenum: '',
+        remarks: ''
       },
       delcourseHistoryList: [],
       minDate: new Date(2018, 0, 1),
@@ -140,6 +144,7 @@ export default {
     this.name = '';
     this.classnum = '';
     this.phonenum = '';
+    this.remarks = '';
     this.giveclass = '';
     this.foldleadnew = '';
     this.belongclass = '';
@@ -160,6 +165,7 @@ export default {
         this.name = res.studentname;
         this.classnum = res.bugclassnum;
         this.phonenum = res.phonenum;
+        this.remarks = res.remarks;
         this.giveclass = res.giveclass;
         this.foldleadnew = res.foldleadnew;
         var cobj = {
@@ -230,6 +236,27 @@ export default {
     delClass() {
       this.dialogClass = true;
       this.use = '';
+    },
+
+    onBeforeClose(action, done) {
+      if (action === 'confirm') {
+        console.log(parseInt(this.use));
+        if (this.use === '' || parseInt(this.use) <= 0) {
+          this.$toast.success('请正确输入课时');
+          done(false); //不关闭弹框
+        } else if (parseInt(this.use) > parseInt(this.classnum)) {
+          this.$toast.success('剩余课时不够');
+          done(false); //不关闭弹框
+        } else {
+          this.delClassConfirm();
+          setTimeout(done, 500);
+        }
+        // setTimeout(done, 1000);
+
+        // setTimeout(done, 1000);
+      } else if (action === 'cancel') {
+        done();
+      }
     },
     delClassConfirm() {
       var freeclassnum = parseInt(this.classnum) - parseInt(this.use);
@@ -309,21 +336,25 @@ export default {
     },
     onBeforeGiveClose(action, done) {
       if (action === 'confirm') {
-        if (parseInt(this.usegive) <= 0) {
-          this.$toast.fail('请正确输入课时');
+        console.log(parseInt(this.usegive));
+        if (this.usegive === '' || parseInt(this.usegive) <= 0) {
+          this.$toast.success('请正确输入课时');
           done(false); //不关闭弹框
+        } else if (parseInt(this.usegive) > parseInt(this.giveclass)) {
+          this.$toast.success('剩余课时不够');
+          done(false); //不关闭弹框
+        } else {
+          this.delGiveClassConfirm();
+          setTimeout(done, 500);
         }
-        setTimeout(done, 1000);
-        console.log();
+        // setTimeout(done, 1000);
+
+        // setTimeout(done, 1000);
       } else if (action === 'cancel') {
-        done(); //关闭
+        done();
       }
     },
     delGiveClassConfirm() {
-      if (parseInt(this.usegive) <= 0) {
-        this.$toast.fail('请正确输入课时');
-        return;
-      }
       var freegiveclassnum = parseInt(this.giveclass) - parseInt(this.usegive);
       let obj = {
         name: this.name,
@@ -402,8 +433,17 @@ export default {
         studentid: this.$route.query.studentid,
         studentname: this.content.studentname,
         phonenum: this.content.phonenum,
+        remarks: this.content.remarks,
         belong_class_id: this.content.belongclassid
       };
+      if (this.content.studentname === '') {
+        this.$toast.fail('姓名不能为空');
+        return;
+      }
+      if (this.content.phonenum === '') {
+        this.$toast.fail('手机号');
+        return;
+      }
       updateStudentDetail(updateobj)
         .then(result => {
           if (result.status !== 200) {
@@ -426,6 +466,7 @@ export default {
               this.name = res.studentname;
               this.classnum = res.bugclassnum;
               this.phonenum = res.phonenum;
+              this.remarks = res.remarks;
               this.giveclass = res.giveclass;
               this.foldleadnew = res.foldleadnew;
               var cobj = {
@@ -476,6 +517,7 @@ export default {
           });
           this.content.studentname = JSON.parse(JSON.stringify(this.name));
           this.content.phonenum = JSON.parse(JSON.stringify(this.phonenum));
+          this.content.remarks = JSON.parse(JSON.stringify(this.remarks));
           this.content.belongclass = JSON.parse(JSON.stringify(this.belongclass));
           this.content.belongclassid = JSON.parse(JSON.stringify(this.belongclassid));
         })

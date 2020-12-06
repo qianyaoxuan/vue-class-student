@@ -536,10 +536,11 @@ router.post('/addStudent', function(req, res, next) {
   var giveclass = req.body.giveclass;
   var foldleadnew = req.body.foldleadnew;
   var belong_class_id = req.body.belong_class_id;
+  var remarks = req.body.remarks;
   // console.log(req.body);
   sql =
-    'INSERT INTO student(studentname,phonenum,bugclassnum,giveclass,foldleadnew,belong_class_id) VALUES(?,?,?,?,?,?)';
-  var sqlParams = [name, phonenum, classnum, giveclass, foldleadnew, belong_class_id];
+    'INSERT INTO student(studentname,phonenum,bugclassnum,remarks,giveclass,foldleadnew,belong_class_id) VALUES(?,?,?,?,?,?,?)';
+  var sqlParams = [name, phonenum, classnum, remarks, giveclass, foldleadnew, belong_class_id];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
       res.json({
@@ -651,8 +652,9 @@ router.post('/updateStudentDetail', function(req, res, next) {
   var studentname = req.body.studentname;
   var phonenum = req.body.phonenum;
   var belong_class_id = req.body.belong_class_id;
-  var sql = `UPDATE student SET studentname=?,phonenum=?,belong_class_id=? WHERE studentid=?`;
-  var sqlParams = [studentname, phonenum, belong_class_id, studentid];
+  var remarks = req.body.remarks;
+  var sql = `UPDATE student SET studentname=?,phonenum=?,belong_class_id=?,remarks=? WHERE studentid=?`;
+  var sqlParams = [studentname, phonenum, belong_class_id, remarks, studentid];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
       res.json({

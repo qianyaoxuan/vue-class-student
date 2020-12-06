@@ -232,6 +232,7 @@ CREATE TABLE `student`  (
   `phonenum` char(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `bugclassnum` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `giveclass` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `remarks` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `foldleadnew` int(11) NOT NULL,
   `belong_class_id` int(11) NOT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,

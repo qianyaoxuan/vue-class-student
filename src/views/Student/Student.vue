@@ -1,6 +1,10 @@
 <template>
   <div class="home">
-    
+            <van-nav-bar
+  left-text="返回"
+  left-arrow
+  @click-left="onClickLeft"
+/>
       <van-dropdown-menu>
   <van-dropdown-item v-model="class1" :options="classList" />
 </van-dropdown-menu>
@@ -9,6 +13,7 @@
 <van-field v-model="tel" type="tel" label="手机号" />
 <van-field v-model="digit" type="digit" label="课时" />
 <van-field v-model="givedigit" type="digit" label="赠送课时" />
+<van-field v-model="remarks"  label="备注" />
 <van-cell center title="是否老带新">
   <template #right-icon>
     <van-switch v-model="checked" size="24" />
@@ -57,6 +62,7 @@ export default {
       tel: '',
       digit: '',
       givedigit: '',
+      remarks: '',
       oldgiveclass: '',
       old: {
         name: '空',
@@ -147,6 +153,7 @@ export default {
         phonenum: this.tel,
         classnum: this.digit,
         giveclass: this.givedigit,
+        remarks: this.remarks,
         belong_class_id: this.class1
       };
       if (this.class1 === '') {
@@ -217,6 +224,7 @@ export default {
                       this.digit = '';
                       this.class1 = '';
                       this.givedigit = '';
+                      this.remarks = '';
                       this.oldgiveclass = '';
                       this.searchValue = '';
                       this.checked = false;
@@ -238,6 +246,7 @@ export default {
                   this.digit = '';
                   this.class1 = '';
                   this.givedigit = '';
+                  this.remarks = '';
                   this.oldgiveclass = '';
                   this.checked = false;
                   this.searchValue = '';
@@ -258,6 +267,9 @@ export default {
         .catch(error => {
           console.log(error);
         });
+    },
+    onClickLeft() {
+      this.$router.go(-1);
     },
     addSubmit() {},
     changeSwipe(index) {
