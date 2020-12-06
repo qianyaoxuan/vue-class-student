@@ -721,7 +721,7 @@ export default {
         });
     },
     onClickLeft() {
-      this.$router.go(-1);
+      this.$router.push('/');
     },
     showGood(item) {
       this.setGood(item);
