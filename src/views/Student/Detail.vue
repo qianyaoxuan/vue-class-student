@@ -40,7 +40,14 @@
       </van-popup>
          <van-field v-model="content.remarks" label="备注" />
 </van-dialog>
-
+<van-dialog v-model="dialogAddClass" title="增加课时"   show-cancel-button @confirm='addCourseConfirm' >
+  <!-- <img src="https://img.yzcdn.cn/vant/apple-3.jpg" /> -->
+    <van-cell title="剩余课时"  type="digit"  :value="classnum"   />
+    <van-cell title="剩余赠送课时"  type="digit"  :value="giveclass"   />
+   <van-field v-model="add.classnum" label="购买课时添加" />
+   <van-field v-model="add.giveclassnum" label="赠送课时添加" />
+   <!-- <van-field v-model="date" label="时间" /> -->
+</van-dialog>
 <van-dialog v-model="dialogClass" title="购买课时销课"  :before-close="onBeforeClose" show-cancel-button >
   <!-- <img src="https://img.yzcdn.cn/vant/apple-3.jpg" /> -->
     <van-cell title="剩余课时" :value="classnum"   />
@@ -66,6 +73,8 @@
   :max-date="maxDate"
 />
 </van-dialog>
+<van-button type="primary" size="large"  @click='addCourse'>添加课时</van-button>
+
   <div>销课历史</div>
     <div>
   <van-cell-group>
@@ -126,10 +135,15 @@ export default {
       dialogGiveClass: false,
       dialogClass: false,
       dialogUpdateStudentContent: false,
+      dialogAddClass: false,
       use: '',
       date: '',
       usegive: '',
       dategive: '',
+      add: {
+        classnum: '',
+        giveclassnum: ''
+      },
       content: {
         studentname: '',
         phonenum: '',
@@ -257,6 +271,60 @@ export default {
       } else if (action === 'cancel') {
         done();
       }
+    },
+    addCourseConfirm() {
+      var newclassnum = parseInt(this.classnum) + parseInt(this.add.classnum);
+      var newgiveclassnum = parseInt(this.giveclass) + parseInt(this.add.giveclassnum);
+      let addobj = {
+        name: this.name,
+        bugclassnum: newclassnum
+      };
+      updateStudentclass(addobj)
+        .then(result => {
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+            return;
+          }
+          let obj = {
+            name: this.name,
+            giveclass: newgiveclassnum
+          };
+          updateStudentgiveclass(obj)
+            .then(result => {
+              if (result.status !== 200) {
+                this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                return;
+              }
+              var sid = this.$route.query.studentid;
+              let obj = {
+                id: sid
+              };
+              getStudent(obj)
+                .then(result => {
+                  if (result.status !== 200) {
+                    this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+                    return;
+                  }
+                  var res = result.data[0];
+                  this.classnum = res.bugclassnum;
+                  this.giveclass = res.giveclass;
+                  this.$toast.success('加课成功~');
+                  var sobj = {
+                    studentid: res.studentid
+                  };
+                })
+                .catch(error => {
+                  console.log(error);
+                });
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
     delClassConfirm() {
       var freeclassnum = parseInt(this.classnum) - parseInt(this.use);
@@ -498,6 +566,11 @@ export default {
     delGiveClass() {
       this.dialogGiveClass = true;
       this.usegive = '';
+    },
+    addCourse() {
+      this.dialogAddClass = true;
+      this.add.classnum = '';
+      this.add.giveclassnum = '';
     },
     updateStudentContent() {
       this.dialogUpdateStudentContent = true;
