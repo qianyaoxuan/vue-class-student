@@ -230,8 +230,10 @@ CREATE TABLE `student`  (
   `studentid` int(11) NOT NULL AUTO_INCREMENT,
   `studentname` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `phonenum` char(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `price` double NOT NULL,
   `bugclassnum` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `giveclass` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `createdate` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `remarks` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `foldleadnew` int(11) NOT NULL,
   `belong_class_id` int(11) NOT NULL,
@@ -245,13 +247,14 @@ DROP TABLE IF EXISTS `course`;
 CREATE TABLE `course`  (
   `courseid` int(11) NOT NULL AUTO_INCREMENT,
   `student` char(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-   `studentid` int(11) NOT NULL ,
+  `studentid` int(11) NOT NULL ,
   `teacher` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `coursetype` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `coursenum` int(11) NOT NULL,
+  `coursenum` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `coursedate` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `coursebefore` int(11) NOT NULL, 
   `courseafter` int(11) NOT NULL,
+  `remarks` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`courseid`) USING BTREE
@@ -262,9 +265,9 @@ DROP TABLE IF EXISTS `handlehistory`;
 CREATE TABLE `handlehistory`  (
   `historyid` int(11) NOT NULL AUTO_INCREMENT,
   `username` char(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `type` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `value` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-    `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `type` char(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `value` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`historyid`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;

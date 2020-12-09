@@ -89,7 +89,7 @@ export default {
       for (let i = 0; i < this.initData.length; i++) {
         width +=
           this.$refs.liItem[0].getBoundingClientRect().width +
-          parseInt(getComputedStyle(this.$refs.liItem[0]).marginRight);
+          parseFloat(getComputedStyle(this.$refs.liItem[0]).marginRight);
       }
       this.$refs.content.style.width = width + 'px';
     },

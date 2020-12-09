@@ -532,15 +532,18 @@ router.post('/getStudent', function(req, res, next) {
 router.post('/addStudent', function(req, res, next) {
   var name = req.body.name;
   var phonenum = req.body.phonenum;
+  var price = req.body.price;
   var classnum = req.body.classnum;
   var giveclass = req.body.giveclass;
   var foldleadnew = req.body.foldleadnew;
   var belong_class_id = req.body.belong_class_id;
+  var createdate = req.body.createdate;
   var remarks = req.body.remarks;
+
   // console.log(req.body);
   sql =
-    'INSERT INTO student(studentname,phonenum,bugclassnum,remarks,giveclass,foldleadnew,belong_class_id) VALUES(?,?,?,?,?,?,?)';
-  var sqlParams = [name, phonenum, classnum, remarks, giveclass, foldleadnew, belong_class_id];
+    'INSERT INTO student(studentname,phonenum,price,bugclassnum,createdate,remarks,giveclass,foldleadnew,belong_class_id) VALUES(?,?,?,?,?,?,?,?,?)';
+  var sqlParams = [name, phonenum, price, classnum, createdate, remarks, giveclass, foldleadnew, belong_class_id];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
       res.json({
@@ -695,7 +698,7 @@ router.post('/updateStudentgiveclass', function(req, res, next) {
   });
 });
 
-//销课
+//消课
 router.post('/delCourse', function(req, res, next) {
   // console.log(req.body);
 
@@ -707,10 +710,11 @@ router.post('/delCourse', function(req, res, next) {
   var coursedate = req.body.coursedate;
   var coursebefore = req.body.coursebefore;
   var courseafter = req.body.courseafter;
+  var remarks = req.body.remarks;
 
   sql =
-    'INSERT INTO course(student,studentid,teacher,coursetype,coursenum,coursedate,coursebefore,courseafter) VALUES(?,?,?,?,?,?,?,?)';
-  var sqlParams = [student, studentid, teacher, coursetype, coursenum, coursedate, coursebefore, courseafter];
+    'INSERT INTO course(student,studentid,teacher,coursetype,coursenum,coursedate,coursebefore,courseafter,remarks) VALUES(?,?,?,?,?,?,?,?,?)';
+  var sqlParams = [student, studentid, teacher, coursetype, coursenum, coursedate, coursebefore, courseafter, remarks];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
       res.json({
@@ -728,11 +732,11 @@ router.post('/delCourse', function(req, res, next) {
   });
 });
 
-//查询个人销课信息
+//查询个人消课信息
 router.post('/getdelCourseHistory', function(req, res, next) {
   var studentid = req.body.studentid;
   sql =
-    'select coursetype,coursenum,coursedate,teacher,coursebefore from course where studentid = ? order by courseid desc ';
+    'select coursetype,coursenum,coursedate,teacher,coursebefore,remarks from course where studentid = ? order by courseid desc ';
   var sqlParams = [studentid];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
@@ -796,7 +800,7 @@ router.post('/getOneClassStudentlist', function(req, res, next) {
   });
 });
 
-//销课
+//消课
 router.post('/handleHistory', function(req, res, next) {
   var type = req.body.type;
   var value = req.body.value;

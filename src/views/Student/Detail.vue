@@ -16,7 +16,15 @@
   <van-cell  v-else is-link  title="是否老带新" value="否"  @click='updateStudentContent' />
    <van-cell title="备注"  is-link :value="remarks" @click='updateStudentContent'  />
 </van-cell-group>
-<van-dialog v-model="dialogUpdateStudentContent" title="更新学员信息" show-cancel-button @confirm='updateStudentContentConfirm'>
+<van-dialog v-model="dialogUpdateStudentContentConfirm" title="信息确认" show-cancel-button @confirm='updateStudentContentConfirm'>
+     <van-cell title="新姓名"    :value="content.studentname"  />
+     <van-cell title="新手机号"   :value="content.phonenum"  />
+     <van-cell title="新班级"   :value="content.belongclass"  />
+     <van-cell title="新备注"   :value="content.remarks"  />
+
+</van-dialog>
+
+<van-dialog v-model="dialogUpdateStudentContent" title="更新学员信息" show-cancel-button @confirm='updateStudent'>
    <van-field v-model="content.studentname" label="姓名" />
    <van-field v-model="content.phonenum"  type="tel" label="手机号" />
 
@@ -40,19 +48,38 @@
       </van-popup>
          <van-field v-model="content.remarks" label="备注" />
 </van-dialog>
-<van-dialog v-model="dialogAddClass" title="增加课时"   show-cancel-button @confirm='addCourseConfirm' >
-  <!-- <img src="https://img.yzcdn.cn/vant/apple-3.jpg" /> -->
+<van-dialog v-model="dialogAddClass" title="增加课时"   show-cancel-button @confirm='addCourseConfirmDialog' >
     <van-cell title="剩余课时"  type="digit"  :value="classnum"   />
     <van-cell title="剩余赠送课时"  type="digit"  :value="giveclass"   />
-   <van-field v-model="add.classnum" type="digit"  label="购买课时添加" />
-   <van-field v-model="add.giveclassnum"  type="digit" label="赠送课时添加" />
-   <!-- <van-field v-model="date" label="时间" /> -->
+   <van-field v-model="add.classnum" type="number"  label="购买课时添加" />
+   <van-field v-model="add.giveclassnum"  type="number" label="赠送课时添加" />
+   <van-field v-model="add.remarks"  label="备注" />
 </van-dialog>
-<van-dialog v-model="dialogClass" title="购买课时销课"  :before-close="onBeforeClose" show-cancel-button >
+<van-dialog v-model="dialogAddClassConfirm" title="增加课时确认信息"   show-cancel-button @confirm='addCourseConfirm' @cancel='addCourseConfirmCancel'  >
+      <van-cell title="学员"    :value="name"   />
+    <van-cell title="剩余课时"    :value="classnum"   />
+    <van-cell title="剩余赠送课时"    :value="giveclass"   />
+   <van-cell title="本次购买课时" :value="add.classnum"  />
+   <van-cell title="本次赠送课时" :value="add.giveclassnum"   />
+   <van-cell  title="备注" :value="add.remarks"   />
+</van-dialog>
+
+<van-dialog v-model="dialogClassConfirm" title="消课确认"  @confirm="delClassConfirm" @cancel='delClassCancel'  show-cancel-button >
+  <!-- <img src="https://img.yzcdn.cn/vant/apple-3.jpg" /> -->
+  <van-cell title="类型" value= '购买课时'  />
+    <van-cell title="剩余课时" :value="classnum"   />
+    <van-cell title="本次销耗课时" :value="use"   />
+ <van-cell title="备注" :value="remarksuse"   />
+ <van-cell title="上课时间" :value="getTimeFormat(date) "   />
+  
+</van-dialog>
+
+<van-dialog v-model="dialogClass" title="购买课时消课"  :before-close="onBeforeClose" show-cancel-button >
   <!-- <img src="https://img.yzcdn.cn/vant/apple-3.jpg" /> -->
     <van-cell title="剩余课时" :value="classnum"   />
-   <van-field v-model="use" label="本次销耗课时" />
-   <!-- <van-field v-model="date" label="时间" /> -->
+   <van-field v-model="use" type="number" label="本次销耗课时" />
+ <van-field v-model="remarksuse"   label="备注" />
+  
    <van-datetime-picker
   v-model="date"
   type="date"
@@ -62,9 +89,21 @@
   :max-date="maxDate"
 />
 </van-dialog>
-<van-dialog v-model="dialogGiveClass"  :before-close="onBeforeGiveClose" title="赠送课时销课" show-cancel-button >
+
+
+<van-dialog v-model="dialogGiveClassConfirm" title="消课确认"  @confirm="delGiveClassConfirm" @cancel='delGiveClassCancel'  show-cancel-button >
+  <!-- <img src="https://img.yzcdn.cn/vant/apple-3.jpg" /> -->
+  <van-cell title="类型" value= '赠送课时'  />
+    <van-cell title="剩余课时" :value="giveclass"   />
+    <van-cell title="本次销耗课时" :value="usegive"   />
+ <van-cell title="备注" :value="remarksgive"   />
+ <van-cell title="上课时间" :value="getTimeFormat(dategive) "   />
+</van-dialog>
+<van-dialog v-model="dialogGiveClass"  :before-close="onBeforeGiveClose" title="赠送课时消课" show-cancel-button >
       <van-cell title="剩余课时" :value="giveclass"   />
-   <van-field v-model="usegive" type="digit"  label="本次销耗课时" />
+   <van-field v-model="usegive" type="number"  label="本次销耗课时" />
+   <van-field v-model="remarksgive"   label="备注" />
+   
     <van-datetime-picker
   v-model="dategive"
   type="date"
@@ -75,25 +114,24 @@
 </van-dialog>
 <van-button type="primary" size="large"  @click='addCourse'>添加课时</van-button>
 
-  <div>销课历史</div>
+  <div>消课历史</div>
     <div>
   <van-cell-group>
       <van-row >
-  <van-col span="4">  <van-cell title="类型" /></van-col>
-  <van-col span="8">  <van-cell  title='课时'  /></van-col>
-  <van-col span="7">  <van-cell title="时间" /></van-col>
-  <van-col span="5">  <van-cell  value="操作人" /></van-col>
+  <van-col span="3">  <van-cell title="类型" /></van-col>
+  <van-col span="5">  <van-cell  title='课时'  /></van-col>
+  <van-col span="5">  <van-cell title="时间" /></van-col>
+  <van-col span="11">  <van-cell  value="操作人,备注" /></van-col>
 </van-row>
 
 </van-cell-group>  
     <van-cell-group v-for='(item,index) in delcourseHistoryList' :key='index'>
       <van-row >
-  <van-col span="4">  <van-cell :value="getType(item)" /></van-col>
-  <van-col span="8">  <van-cell  :title='item.coursenum' :label="getCourseBeforeAndAfter(item)"  /></van-col>
-  <van-col span="7">  <van-cell :value="getLocalTime(item.coursedate)" /></van-col>
-  <van-col span="5">  <van-cell  :value="item.teacher" /></van-col>
+  <van-col span="3">  <van-cell :value="getType(item)" /></van-col>
+  <van-col span="5">  <van-cell  :title='item.coursenum' :label="getCourseBeforeAndAfter(item)"  /></van-col>
+  <van-col span="5">  <van-cell :value="getLocalTime(item.coursedate)" /></van-col>
+  <van-col span="11">  <van-cell  :title="item.teacher" :label="item.remarks" /></van-col>
 </van-row>
-
 </van-cell-group>  
     </div>
   </div>
@@ -135,12 +173,18 @@ export default {
       foldleadnew: '',
       dialogGiveClass: false,
       dialogClass: false,
+      dialogGiveClassConfirm: false,
+      dialogClassConfirm: false,
       dialogUpdateStudentContent: false,
+      dialogUpdateStudentContentConfirm: false,
       dialogAddClass: false,
+      dialogAddClassConfirm: false,
       use: '',
       date: '',
+      remarksuse: '',
       usegive: '',
       dategive: '',
+      remarksgive: '',
       add: {
         classnum: '',
         giveclassnum: ''
@@ -255,15 +299,14 @@ export default {
 
     onBeforeClose(action, done) {
       if (action === 'confirm') {
-        console.log(parseInt(this.use));
-        if (this.use === '' || parseInt(this.use) <= 0) {
+        if (this.use === '' || parseFloat(this.use) <= 0) {
           this.$toast.success('请正确输入课时');
           done(false); //不关闭弹框
-        } else if (parseInt(this.use) > parseInt(this.classnum)) {
+        } else if (parseFloat(this.use) > parseFloat(this.classnum)) {
           this.$toast.success('剩余课时不够');
           done(false); //不关闭弹框
         } else {
-          this.delClassConfirm();
+          this.delClassConfirmDialog();
           setTimeout(done, 500);
         }
         // setTimeout(done, 1000);
@@ -273,20 +316,28 @@ export default {
         done();
       }
     },
+    addCourseConfirmDialog() {
+      this.dialogAddClass = false;
+      this.dialogAddClassConfirm = true;
+    },
+    addCourseConfirmCancel() {
+      this.dialogAddClassConfirm = false;
+      this.dialogAddClass = true;
+    },
     addCourseConfirm() {
-      console.log(this.add.classnum);
+      // console.log(this.add.classnum);
       var newclassnum;
       var newgiveclassnum;
       if (this.add.classnum) {
-        newclassnum = parseInt(this.classnum) + parseInt(this.add.classnum);
+        newclassnum = parseFloat(this.classnum) + parseFloat(this.add.classnum);
       } else {
-        newclassnum = parseInt(this.classnum);
+        newclassnum = parseFloat(this.classnum);
       }
 
       if (this.add.giveclassnum) {
-        newgiveclassnum = parseInt(this.giveclass) + parseInt(this.add.giveclassnum);
+        newgiveclassnum = parseFloat(this.giveclass) + parseFloat(this.add.giveclassnum);
       } else {
-        newgiveclassnum = parseInt(this.giveclass);
+        newgiveclassnum = parseFloat(this.giveclass);
       }
       let addobj = {
         name: this.name,
@@ -336,7 +387,9 @@ export default {
                     ';赠课添加：' +
                     this.add.giveclassnum +
                     ';时间：' +
-                    this.getLocalTime(Date.parse(new Date()));
+                    this.getLocalTime(Date.parse(new Date())) +
+                    ';备注：' +
+                    this.add.remarks;
                   let handletype = {
                     type: 'addcourse',
                     value: valuestr
@@ -364,8 +417,24 @@ export default {
           console.log(error);
         });
     },
+    getTimeFormat(val) {
+      if (val) {
+        var time = val.getTime() + '';
+        return this.getLocalTime(time);
+      } else {
+        return '';
+      }
+    },
+    delClassConfirmDialog() {
+      this.dialogClass = false;
+      this.dialogClassConfirm = true;
+    },
+    delClassCancel() {
+      this.dialogClassConfirm = false;
+      this.dialogClass = true;
+    },
     delClassConfirm() {
-      var freeclassnum = parseInt(this.classnum) - parseInt(this.use);
+      var freeclassnum = parseFloat(this.classnum) - parseFloat(this.use);
       let obj = {
         name: this.name,
         bugclassnum: freeclassnum
@@ -385,7 +454,8 @@ export default {
             coursenum: this.use,
             coursedate: time,
             coursebefore: this.classnum,
-            courseafter: freeclassnum + ''
+            courseafter: freeclassnum + '',
+            remarks: this.remarksuse
           };
           // console.log(delobj);
           delCourse(delobj)
@@ -409,7 +479,7 @@ export default {
                   var res = result.data[0];
                   this.classnum = res.bugclassnum;
                   this.giveclass = res.giveclass;
-                  this.$toast.success('销课成功~');
+                  this.$toast.success('消课成功~');
                   var sobj = {
                     studentid: res.studentid
                   };
@@ -422,8 +492,9 @@ export default {
                       }
                       // console.log(result);
                       this.delcourseHistoryList = result.data;
+                      console.log(delobj.coursebefore);
                       var valuestr =
-                        '学员销课,姓名：' +
+                        '学员消课,姓名：' +
                         delobj.student +
                         ';id：' +
                         delobj.studentid +
@@ -432,10 +503,12 @@ export default {
                         this.getLocalTime(delobj.coursedate) +
                         ';课时：' +
                         delobj.coursenum +
-                        '；销课前课时：' +
+                        '；消课前课时：' +
                         delobj.coursebefore +
                         ';剩余：' +
-                        delobj.courseafter;
+                        delobj.courseafter +
+                        ';备注：' +
+                        delobj.remarks;
                       let handletype = {
                         type: 'delcourse',
                         value: valuestr
@@ -469,15 +542,16 @@ export default {
     },
     onBeforeGiveClose(action, done) {
       if (action === 'confirm') {
-        console.log(parseInt(this.usegive));
-        if (this.usegive === '' || parseInt(this.usegive) <= 0) {
+        // console.log(parseFloat(this.usegive));
+        if (this.usegive === '' || parseFloat(this.usegive) <= 0) {
           this.$toast.success('请正确输入课时');
           done(false); //不关闭弹框
-        } else if (parseInt(this.usegive) > parseInt(this.giveclass)) {
+        } else if (parseFloat(this.usegive) > parseFloat(this.giveclass)) {
           this.$toast.success('剩余课时不够');
           done(false); //不关闭弹框
         } else {
-          this.delGiveClassConfirm();
+          // this.delGiveClassConfirm();
+          this.delGiveClassConfirmDialog();
           setTimeout(done, 500);
         }
         // setTimeout(done, 1000);
@@ -487,8 +561,17 @@ export default {
         done();
       }
     },
+
+    delGiveClassConfirmDialog() {
+      this.dialogGiveClass = false;
+      this.dialogGiveClassConfirm = true;
+    },
+    delGiveClassCancel() {
+      this.dialogGiveClassConfirm = false;
+      this.dialogGiveClass = true;
+    },
     delGiveClassConfirm() {
-      var freegiveclassnum = parseInt(this.giveclass) - parseInt(this.usegive);
+      var freegiveclassnum = parseFloat(this.giveclass) - parseFloat(this.usegive);
       let obj = {
         name: this.name,
         giveclass: freegiveclassnum
@@ -508,7 +591,8 @@ export default {
             coursenum: this.usegive,
             coursedate: givetime,
             coursebefore: this.giveclass,
-            courseafter: freegiveclassnum + ''
+            courseafter: freegiveclassnum + '',
+            remarks: this.remarksgive
           };
           delCourse(delobj)
             .then(result => {
@@ -530,7 +614,7 @@ export default {
                   var res = result.data[0];
                   this.classnum = res.bugclassnum;
                   this.giveclass = res.giveclass;
-                  this.$toast.success('销课成功~');
+                  this.$toast.success('消课成功~');
 
                   var sobj = {
                     studentid: res.studentid
@@ -545,7 +629,7 @@ export default {
                       // console.log(result);
                       this.delcourseHistoryList = result.data;
                       var valuestr =
-                        '学员销课,姓名：' +
+                        '学员消课,姓名：' +
                         delobj.student +
                         ';id：' +
                         delobj.studentid +
@@ -554,10 +638,12 @@ export default {
                         this.getLocalTime(delobj.coursedate) +
                         ';课时：' +
                         delobj.coursenum +
-                        '；销课前课时：' +
+                        '；消课前课时：' +
                         delobj.coursebefore +
                         ';剩余：' +
-                        delobj.courseafter;
+                        delobj.courseafter +
+                        ';备注：' +
+                        delobj.remarks;
                       let handletype = {
                         type: 'delcourse',
                         value: valuestr
@@ -588,6 +674,10 @@ export default {
         .catch(error => {
           console.log(error);
         });
+    },
+    updateStudent() {
+      this.dialogUpdateStudentContent = false;
+      this.dialogUpdateStudentContentConfirm = true;
     },
     updateStudentContentConfirm() {
       let updateobj = {
@@ -643,7 +733,7 @@ export default {
                   // console.log(result);
                   this.belongclass = result.data[0].classname;
                   this.belongclassid = result.data[0].classid;
-
+                  this.$toast.success('更新信息成功~');
                   var valuestr =
                     '更新学员信息，id：' +
                     this.$route.query.studentid +
@@ -736,19 +826,19 @@ export default {
       }
     },
     getLocalTime(nS) {
-      console.log(nS);
-      return new Date(parseInt(nS)).toLocaleString().replace(/:\d{1,2}$/, ' ');
+      // console.log(nS);
+      return new Date(parseFloat(nS)).toLocaleString().replace(/:\d{1,2}$/, ' ');
     },
     getCourseBeforeAndAfter(val) {
       if (val.coursenum <= 0) {
         if (val.coursebefore) {
-          let beforecoursestr = '销课前课时：' + val.coursebefore;
+          let beforecoursestr = '消课前课时：' + val.coursebefore;
           return beforecoursestr;
         }
       } else {
         if (val.coursebefore) {
-          let beforecoursestr = '销课前课时：' + val.coursebefore;
-          var morenum = parseInt(val.coursebefore) - parseInt(val.coursenum);
+          let beforecoursestr = '消课前课时：' + val.coursebefore;
+          var morenum = parseFloat(val.coursebefore) - parseFloat(val.coursenum);
           let aftercoursestr = '，剩余课时：' + morenum;
 
           return beforecoursestr + aftercoursestr;

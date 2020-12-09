@@ -8,11 +8,19 @@
       <van-dropdown-menu>
   <van-dropdown-item v-model="class1" :options="classList" />
 </van-dropdown-menu>
-       <van-field v-model="text" label="姓名" />
+<van-field v-model="text" label="姓名" />
 <!-- 输入手机号，调起手机号键盘 -->
 <van-field v-model="tel" type="tel" label="手机号" />
-<van-field v-model="digit" type="digit" label="课时" />
-<van-field v-model="givedigit" type="digit" label="赠送课时" />
+<van-field v-model="price" type="number" label="收费" />
+<van-field v-model="digit" type="number" label="课时" />
+<van-field v-model="givedigit" type="number" label="赠送课时" />
+<van-datetime-picker
+  v-model="createdate"
+  type="date"
+  title="选择报名日期"
+  :min-date="minDate"
+  :max-date="maxDate"
+/>
 <van-field v-model="remarks"  label="备注" />
 <van-cell center title="是否老带新">
   <template #right-icon>
@@ -66,6 +74,8 @@ export default {
       remarks: '',
       oldgiveclass: '',
       origingiveclass: '',
+      minDate: new Date(2018, 0, 1),
+      maxDate: new Date(2025, 10, 1),
       old: {
         name: '空',
         classname: '',
@@ -73,6 +83,8 @@ export default {
         giveclass: ''
       },
       checked: false,
+      price: '',
+      createdate: '',
       saleGroupGoods: [],
       discoverGoods: [],
       classList: []
@@ -150,14 +162,21 @@ export default {
         });
     },
     addNewstudent() {
+      var createtime = this.createdate.getTime() + '';
       let sobj = {
         name: this.text,
         phonenum: this.tel,
+        price: this.price,
         classnum: this.digit,
         giveclass: this.givedigit,
+        createdate: createtime,
         remarks: this.remarks,
         belong_class_id: this.class1
       };
+      if (parseFloat(this.digit) < 0 || parseFloat(this.givedigit) < 0) {
+        this.$toast.fail('课时数量不正确');
+        return;
+      }
       if (this.class1 === '') {
         this.$toast.fail('请选择班级');
         return;
@@ -208,7 +227,7 @@ export default {
                   return;
                 }
                 if (this.checked) {
-                  var totaloldgive = parseInt(this.old.giveclass) + parseInt(this.oldgiveclass);
+                  var totaloldgive = parseFloat(this.old.giveclass) + parseFloat(this.oldgiveclass);
                   this.origingiveclass = this.oldgiveclass;
                   let oldobj = {
                     name: this.old.name,

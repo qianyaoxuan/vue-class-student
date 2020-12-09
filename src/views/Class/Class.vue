@@ -112,7 +112,7 @@ export default {
       });
     },
     onClickLeft() {
-      this.$router.go(-1);
+      this.$router.push('/');
     },
     ...mapMutations({
       setGood: 'SET_GOOD_MUTATION'

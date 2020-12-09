@@ -178,9 +178,6 @@ export default {
         });
     },
     addSubmit() {},
-    addStudent() {
-      this.modalShow = true;
-    },
     toStudentDetail(val) {
       this.$router.push({
         path: '/StudentDetail',
