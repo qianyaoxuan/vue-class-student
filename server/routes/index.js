@@ -506,7 +506,7 @@ router.post('/updateClass', function(req, res, next) {
     });
   });
 });
-//获取学员信息
+//获取学员信息————+
 router.post('/getStudent', function(req, res, next) {
   var id = req.body.id;
   var sql = `SELECT * FROM student WHERE studentid=?`;
@@ -534,7 +534,9 @@ router.post('/addStudent', function(req, res, next) {
   var phonenum = req.body.phonenum;
   var price = req.body.price;
   var classnum = req.body.classnum;
+  var classnumfree = req.body.classnum;
   var giveclass = req.body.giveclass;
+  var giveclassfree = req.body.giveclass;
   var foldleadnew = req.body.foldleadnew;
   var belong_class_id = req.body.belong_class_id;
   var createdate = req.body.createdate;
@@ -542,8 +544,8 @@ router.post('/addStudent', function(req, res, next) {
 
   // console.log(req.body);
   sql =
-    'INSERT INTO student(studentname,phonenum,price,bugclassnum,createdate,remarks,giveclass,foldleadnew,belong_class_id) VALUES(?,?,?,?,?,?,?,?,?)';
-  var sqlParams = [name, phonenum, price, classnum, createdate, remarks, giveclass, foldleadnew, belong_class_id];
+    'INSERT INTO student(studentname,phonenum,price,bugclassnum,bugclassnumfree,createdate,remarks,giveclass,giveclassfree,foldleadnew,belong_class_id) VALUES(?,?,?,?,?,?,?,?,?,?,?)';
+  var sqlParams = [name, phonenum, price, classnum, classnumfree,createdate, remarks, giveclass,giveclassfree, foldleadnew, belong_class_id];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
       res.json({
@@ -808,6 +810,30 @@ router.post('/handleHistory', function(req, res, next) {
 
   sql = 'INSERT INTO handlehistory(username,type,value) VALUES(?,?,?)';
   var sqlParams = [username, type, value];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+
+//获取报表
+router.post('/getReport', function(req, res, next) {
+  var datestart = req.body.datestart;
+  var dateend = req.body.dateend;
+  console.log(req.body)
+  sql = 'select * from course where coursedate between ? and ?'
+  var sqlParams = [datestart, dateend];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
       res.json({

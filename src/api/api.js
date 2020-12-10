@@ -32,3 +32,4 @@ export const updateStudentDetail = params => post('updateStudentDetail', params)
 export const delCourse = params => post('delCourse', params);
 export const getdelCourseHistory = params => post('getdelCourseHistory', params);
 export const handleHistory = params => post('handleHistory', params);
+export const getReport = params => post('getReport', params);

@@ -10,8 +10,10 @@
   <van-cell title="姓名" is-link  :value="name"  @click='updateStudentContent' />
   <van-cell title="所属班级" is-link  :value="belongclass" @click='updateStudentContent' />
   <van-cell title="手机号" is-link  :value="phonenum" @click='updateStudentContent' />
+   <van-cell title="收费" is-link :value="price"   @click='updateStudentContent' />
   <van-cell title="购买课时" is-link :value="classnum"  @click='delClass' />
   <van-cell title="已赠送课时"  is-link :value="giveclass" @click='delGiveClass'  />
+  <van-cell title="报名日期"  is-link :value="getLocalTime(createdate)" @click='updateStudentContent'  />
   <van-cell  v-if='foldleadnew===1' is-link  title="是否老带新" value="是"   @click='updateStudentContent'/>
   <van-cell  v-else is-link  title="是否老带新" value="否"  @click='updateStudentContent' />
    <van-cell title="备注"  is-link :value="remarks" @click='updateStudentContent'  />
@@ -142,6 +144,7 @@ import goodItem from '@/components/goodItem/goodItem';
 import scrollX from '@/components/scroll/scrollX';
 import backgroundImg from '@/components/backgroundImg/backgroundImg';
 import tabItem from '@/components/tabItem/tabItem';
+import { getLocalTime  } from '@/util/util';
 import {
   hotSale,
   saleGroup,
@@ -168,6 +171,8 @@ export default {
       belongclass: '',
       classnum: '',
       phonenum: '',
+      price:'',
+      createdate:'',
       remarks: '',
       giveclass: '',
       foldleadnew: '',
@@ -203,8 +208,10 @@ export default {
     this.name = '';
     this.classnum = '';
     this.phonenum = '';
+    this.price='';
     this.remarks = '';
     this.giveclass = '';
+    this.createdate='';
     this.foldleadnew = '';
     this.belongclass = '';
     var sid = this.$route.query.studentid;
@@ -224,7 +231,9 @@ export default {
         this.name = res.studentname;
         this.classnum = res.bugclassnum;
         this.phonenum = res.phonenum;
+        this.price = res.price;
         this.remarks = res.remarks;
+        this.createdate = res.createdate
         this.giveclass = res.giveclass;
         this.foldleadnew = res.foldleadnew;
         var cobj = {
@@ -387,7 +396,7 @@ export default {
                     ';赠课添加：' +
                     this.add.giveclassnum +
                     ';时间：' +
-                    this.getLocalTime(Date.parse(new Date())) +
+                    getLocalTime(Date.parse(new Date())) +
                     ';备注：' +
                     this.add.remarks;
                   let handletype = {
@@ -420,7 +429,7 @@ export default {
     getTimeFormat(val) {
       if (val) {
         var time = val.getTime() + '';
-        return this.getLocalTime(time);
+        return getLocalTime(time);
       } else {
         return '';
       }
@@ -500,7 +509,7 @@ export default {
                         delobj.studentid +
                         ';类型： 买课' +
                         ';时间：' +
-                        this.getLocalTime(delobj.coursedate) +
+                        getLocalTime(delobj.coursedate) +
                         ';课时：' +
                         delobj.coursenum +
                         '；消课前课时：' +
@@ -635,7 +644,7 @@ export default {
                         delobj.studentid +
                         ';类型： 赠课' +
                         ';时间：' +
-                        this.getLocalTime(delobj.coursedate) +
+                        getLocalTime(delobj.coursedate) +
                         ';课时：' +
                         delobj.coursenum +
                         '；消课前课时：' +
@@ -746,7 +755,7 @@ export default {
                     ';班级：' +
                     this.belongclass +
                     ';时间：' +
-                    this.getLocalTime(Date.parse(new Date()));
+                    getLocalTime(Date.parse(new Date()));
 
                   let handletype = {
                     type: 'updatestudentcontent',

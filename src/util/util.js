@@ -43,3 +43,8 @@ export function timeFormat(time) {
   let str = `${month}-${day} ${hour}:${minutes}`;
   return str;
 }
+
+export function getLocalTime(nS) {
+  // console.log(nS);
+  return new Date(parseFloat(nS)).toLocaleString().replace(/:\d{1,2}$/, ' ');
+}
