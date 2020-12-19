@@ -48,3 +48,21 @@ export function getLocalTime(nS) {
   // console.log(nS);
   return new Date(parseFloat(nS)).toLocaleString().replace(/:\d{1,2}$/, ' ');
 }
+
+export function quickSort(arr){
+  if(arr.length <= 1){
+    return arr
+  }
+   var piovtIndex = Math.floor(arr.length / 2)
+   var pivot = arr.splice(piovtIndex,1)[0]
+   var left = []
+   var right = []
+   for (var i = 0 ; i < arr.length; i++){
+     if(arr[i]<pivot){
+       left.push(arr[i])
+     }else{
+       right.push(arr[i])
+     }
+   }
+   return quickSort(left).concat([pivot],quickSort(right))
+}

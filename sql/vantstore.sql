@@ -230,11 +230,6 @@ CREATE TABLE `student`  (
   `studentid` int(11) NOT NULL AUTO_INCREMENT,
   `studentname` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `phonenum` char(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `price` double NOT NULL,
-  `bugclassnum` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-   `bugclassnumfree` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `giveclass` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `giveclassfree` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `createdate` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `remarks` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `foldleadnew` int(11) NOT NULL,
@@ -250,9 +245,11 @@ CREATE TABLE `course`  (
   `courseid` int(11) NOT NULL AUTO_INCREMENT,
   `student` char(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `studentid` int(11) NOT NULL ,
+
   `teacher` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `coursetype` char(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `coursenum` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `classesprice` double NOT NULL,
   `coursedate` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `coursebefore` int(11) NOT NULL, 
   `courseafter` int(11) NOT NULL,
@@ -274,6 +271,25 @@ CREATE TABLE `handlehistory`  (
   PRIMARY KEY (`historyid`) USING BTREE
 ) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
+
+DROP TABLE IF EXISTS `studentcourse`;
+CREATE TABLE `studentcourse`  (
+  `studentcourseid` int(11) NOT NULL AUTO_INCREMENT,
+  `price` double NOT NULL,
+
+  `bugclassnum` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL  DEFAULT 0,
+    `priceeachclass` double NOT NULL,
+   `bugclassnumfree` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL  DEFAULT 0,
+  `giveclass` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL  DEFAULT 0,
+  `giveclassfree` char(11) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL  DEFAULT 0,
+  `addcoursedate` varchar(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `remarks` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+  `belong_student_id` int(11) NOT NULL,
+    `username` char(40) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+  `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`studentcourseid`) USING BTREE
+) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 
 SET FOREIGN_KEY_CHECKS = 1;

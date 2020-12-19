@@ -24,7 +24,6 @@ export const addStudent = params => post('addStudent', params);
 export const getOneClassStudentlist = params => post('getOneClassStudentlist', params);
 export const getStudentlist = () => post('getStudentlist');
 export const getClassStudentlist = () => post('getClassStudentlist');
-export const updateStudentgiveclass = params => post('updateStudentgiveclass', params);
 export const updateStudentclass = params => post('updateStudentclass', params);
 export const searchStudent = params => post('searchStudent', params);
 export const getStudent = params => post('getStudent', params);
@@ -33,3 +32,6 @@ export const delCourse = params => post('delCourse', params);
 export const getdelCourseHistory = params => post('getdelCourseHistory', params);
 export const handleHistory = params => post('handleHistory', params);
 export const getReport = params => post('getReport', params);
+export const getReportAddClass = params => post('getReportAddClass', params);
+export const addCourse = params => post('addCourse', params);
+export const getStudentCourse = params => post('getStudentCourse', params)

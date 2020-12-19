@@ -606,34 +606,22 @@ router.post('/searchStudent', function(req, res, next) {
   });
 });
 
-// 更新学员赠课信息
-router.post('/updateStudentgiveclass', function(req, res, next) {
-  var name = req.body.name;
-  var giveclass = req.body.giveclass;
-  var sql = `UPDATE student SET giveclass=? WHERE studentname=?`;
-  var sqlParams = [giveclass, name];
-  connection.query(sql, sqlParams, function(err, result) {
-    if (err) {
-      res.json({
-        status: 500,
-        msg: err,
-        data: ''
-      });
-      return;
-    }
-    res.json({
-      status: 200,
-      msg: 'success',
-      data: ''
-    });
-  });
-});
+
 // 更新学员购买课时信息
 router.post('/updateStudentclass', function(req, res, next) {
-  var name = req.body.name;
+
+  var belong_student_id = req.body.belong_student_id;
   var bugclassnum = req.body.bugclassnum;
-  var sql = `UPDATE student SET bugclassnum=? WHERE studentname=?`;
-  var sqlParams = [bugclassnum, name];
+  var addcoursedate = req.body.addcoursedate;
+  var coursetype  = req.body.coursetype;
+  var sql 
+  if(coursetype === 'class'){
+    sql = `UPDATE studentcourse SET bugclassnumfree=? WHERE belong_student_id=? and addcoursedate=?`;
+  }else{
+    sql = `UPDATE studentcourse SET giveclassfree=? WHERE belong_student_id=? and addcoursedate=?`;
+  }
+  // var sql = `UPDATE studentcourse SET bugclassnumfree=? WHERE belong_student_id=?`;
+  var sqlParams = [bugclassnum, belong_student_id,addcoursedate];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
       res.json({
@@ -677,33 +665,9 @@ router.post('/updateStudentDetail', function(req, res, next) {
   });
 });
 
-// 更新学员购买课时信息
-router.post('/updateStudentgiveclass', function(req, res, next) {
-  var name = req.body.name;
-  var giveclassnum = req.body.giveclassnum;
-  var sql = `UPDATE student SET giveclass=? WHERE studentname=?`;
-  var sqlParams = [giveclassnum, name];
-  connection.query(sql, sqlParams, function(err, result) {
-    if (err) {
-      res.json({
-        status: 500,
-        msg: err,
-        data: ''
-      });
-      return;
-    }
-    res.json({
-      status: 200,
-      msg: 'success',
-      data: ''
-    });
-  });
-});
 
 //消课
 router.post('/delCourse', function(req, res, next) {
-  // console.log(req.body);
-
   var student = req.body.student;
   var studentid = req.body.studentid;
   var teacher = req.cookies.username;
@@ -713,10 +677,11 @@ router.post('/delCourse', function(req, res, next) {
   var coursebefore = req.body.coursebefore;
   var courseafter = req.body.courseafter;
   var remarks = req.body.remarks;
+  var classesprice = req.body.classesprice
 
   sql =
-    'INSERT INTO course(student,studentid,teacher,coursetype,coursenum,coursedate,coursebefore,courseafter,remarks) VALUES(?,?,?,?,?,?,?,?,?)';
-  var sqlParams = [student, studentid, teacher, coursetype, coursenum, coursedate, coursebefore, courseafter, remarks];
+    'INSERT INTO course(student,studentid,teacher,coursetype,coursenum,classesprice,coursedate,coursebefore,courseafter,remarks) VALUES(?,?,?,?,?,?,?,?,?,?)';
+  var sqlParams = [student, studentid, teacher, coursetype, coursenum,classesprice, coursedate, coursebefore, courseafter, remarks];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
       res.json({
@@ -834,6 +799,85 @@ router.post('/getReport', function(req, res, next) {
   console.log(req.body);
   sql = 'select * from course where coursedate between ? and ?';
   var sqlParams = [datestart, dateend];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+
+//获取添加课时
+router.post('/getReportAddClass', function(req, res, next) {
+  var datestart = req.body.datestart;
+  var dateend = req.body.dateend;
+  sql = 'select * from studentcourse where addcoursedate between ? and ?';
+  var sqlParams = [datestart, dateend];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+
+//增加课时
+router.post('/addCourse', function(req, res, next) {
+  var username = req.cookies.username;
+  var price = req.body.price;
+  var bugclassnum = req.body.classnum;
+  var bugclassnumfree = req.body.classnum;
+  var giveclass = req.body.giveclassnum;
+  var giveclassfree = req.body.giveclassnum;
+  var addcoursedate = req.body.addcoursedate;
+  var remarks = req.body.remarks;
+  var belong_student_id = req.body.belong_student_id;
+  var priceeachclass = Math.round(parseFloat(price)/parseFloat(bugclassnum)*100)/100
+
+  sql = 'INSERT INTO studentcourse(price,bugclassnum,priceeachclass,bugclassnumfree,giveclass,giveclassfree,addcoursedate,remarks,belong_student_id,username) VALUES(?,?,?,?,?,?,?,?,?,?)';
+  var sqlParams = [price, bugclassnum, priceeachclass,bugclassnumfree,giveclass,giveclassfree,addcoursedate,remarks,belong_student_id,username];
+  connection.query(sql, sqlParams, function(err, result) {
+    if (err) {
+      res.json({
+        status: 500,
+        msg: err,
+        data: ''
+      });
+      return;
+    }
+    res.json({
+      status: 200,
+      msg: 'success',
+      data: result
+    });
+  });
+});
+
+
+//获取学员课时
+router.post('/getStudentCourse', function(req, res, next) {
+  var studentid = req.body.studentid;
+
+  sql = 'select * from studentcourse where belong_student_id = ? ';
+  var sqlParams = [studentid];
   connection.query(sql, sqlParams, function(err, result) {
     if (err) {
       res.json({
