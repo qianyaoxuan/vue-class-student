@@ -11,9 +11,9 @@
 <van-field v-model="text" label="姓名" />
 <!-- 输入手机号，调起手机号键盘 -->
 <van-field v-model="tel" type="tel" label="手机号" />
-<!-- <van-field v-model="price" type="number" label="收费" />
+<van-field v-model="price" type="number" label="收费" />
 <van-field v-model="digit" type="number" label="课时" />
-<van-field v-model="givedigit" type="number" label="赠送课时" /> -->
+<van-field v-model="givedigit" type="number" label="赠送课时" />
 <van-datetime-picker
   v-model="createdate"
   type="date"
@@ -27,7 +27,7 @@
     <van-switch v-model="checked" size="24" />
   </template>
 </van-cell>
-<!-- <div v-if='checked'>
+<div v-if='checked'>
     <van-search  v-model="searchValue" placeholder="请输入老学员姓名" show-action @search="onSearch">
       <div slot="action" @click="onSearch">搜索</div>
     </van-search>
@@ -38,7 +38,7 @@
   <van-cell title="已赠送课时" :value="old.giveclass" />
 </van-cell-group>
 <van-field v-model="oldgiveclass" type="digit" label="本次赠送课时" />
-</div> -->
+</div>
 <van-button type="primary" size="large" @click='addNewstudent'>添加</van-button>
   </div>
 </template>
@@ -56,7 +56,8 @@ import {
   updateStudentgiveclass,
   searchStudent,
   handleHistory,
-  discover
+  discover,
+  getStudentCourse
 } from '@/api/api';
 import { mapMutations } from 'vuex';
 export default {
@@ -80,7 +81,8 @@ export default {
         name: '空',
         classname: '',
         classnum: '',
-        giveclass: ''
+        giveclass: '',
+        studentid:''
       },
       checked: false,
       price: '',
@@ -147,8 +149,30 @@ export default {
           if (res.length) {
             this.old.name = res[0].studentname;
             this.old.class = res[0].classname;
-            this.old.classnum = res[0].bugclassnum;
-            this.old.giveclass = res[0].giveclass;
+            this.old.studentid =  res[0].studentid;
+           var sobj = {
+              studentid:  res[0].studentid,
+            };
+
+            getStudentCourse(sobj)
+              .then((result) => {
+                if (result.status !== 200) {
+                  this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                  return;
+                }
+                var classnum = 0;
+                var giveclassnum = 0;
+                var price = 0;
+                for (var i in result.data) {
+                  classnum += parseFloat(result.data[i].bugclassnumfree);
+                  giveclassnum += parseFloat(result.data[i].giveclassfree);
+                  price += parseFloat(result.data[i].price);
+                }
+                this.old.classnum = classnum;
+                 this.old.giveclass = giveclassnum;
+                // this.price = price;
+                // this.addcourseHistoryList = result.data;
+              })
           } else {
             this.old.name = '无';
             this.old.class = '无';
@@ -227,6 +251,17 @@ export default {
                   return;
                 }
                 this.$toast.success('学员添加成功~');
+                let tobj={
+                  name:this.text
+                }
+      searchStudent(tobj)
+        .then(result => {
+          if (result.status !== 200) {
+            this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+
+            return;
+          }}
+        )
                 this.text = '';
                 this.tel = '';
                 this.digit = '';
@@ -241,44 +276,47 @@ export default {
                   classnum: '',
                   giveclass: ''
                 };
-                var flodstr = '';
-                if (sobj.foldleadnew === 1) {
-                  flodstr = '是';
-                } else if (sobj.foldleadnew === 0) {
-                  flodstr = '否';
-                } else {
-                  flodstr = sobj.foldleadnew;
-                }
-                var valuestr =
-                  '添加新学学员,姓名：' +
-                  sobj.name +
-                  ';手机号：' +
-                  sobj.phonenum +
-                  ';班级：' +
-                  sobj.belong_class_id +
-                  ';购买课程：' +
-                  sobj.classnum +
-                  ';赠送课程：' +
-                  sobj.giveclass +
-                  ';是否老带新：' +
-                  flodstr +
-                  ';备注：' +
-                  sobj.remarks;
-                this.$toast.success('学员添加成功~');
-                let handletype = {
-                  type: 'addstudent',
-                  value: valuestr
-                };
-                handleHistory(handletype)
-                  .then(result => {
-                    if (result.status !== 200) {
-                      this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
-                      return;
-                    }
-                  })
-                  .catch(error => {
-                    console.log(error);
-                  });
+
+
+
+
+
+                // var flodstr = '';
+                // if (sobj.foldleadnew === 1) {
+                //   flodstr = '是';
+                // } else if (sobj.foldleadnew === 0) {
+                //   flodstr = '否';
+                // } else {
+                //   flodstr = sobj.foldleadnew;
+                // }
+                // var valuestr =
+                //   '添加新学学员,姓名：' +
+                //   sobj.name +
+                //   ';手机号：' +
+                //   sobj.phonenum +
+                //   ';班级：' +
+                //   sobj.belong_class_id +
+                //   ';购买课程：' +
+                //   sobj.classnum +
+                //   ';赠送课程：' +
+                //   sobj.giveclass +
+                //   ';是否老带新：' +
+                //   flodstr +
+                //   ';备注：' +
+                //   sobj.remarks;
+                // this.$toast.success('学员添加成功~');
+                // let handletype = {
+                //   type: 'addstudent',
+                //   value: valuestr
+                // };
+                
+                // handleHistory(handletype)
+                //   .then(result => {
+                //     if (result.status !== 200) {
+                //       this.$toast.fail('请联系研发' + JSON.stringify(result.msg));
+                //       return;
+                //     }
+                //   })
                 // if (this.checked) {
                 //   var totaloldgive = parseFloat(this.old.giveclass) + parseFloat(this.oldgiveclass);
                 //   this.origingiveclass = this.oldgiveclass;
@@ -429,9 +467,6 @@ export default {
                 //     });
                 // }
               })
-              .catch(error => {
-                console.log(error);
-              });
           }
           // this.$toast.success('更新成功~');
         })
